@@ -5,6 +5,7 @@ import { signOut } from "../login/actions";
 const NAV = [
   { href: "/", label: "ภาพรวม" },
   { href: "/daily", label: "เช็ครายวัน" },
+  { href: "/service", label: "คำขอ/ปัญหา" },
 ];
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {

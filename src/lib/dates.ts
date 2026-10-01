@@ -15,3 +15,13 @@ export function thDate(s: string | null | undefined): string {
   const [y, m, d] = s.split("-");
   return `${d}/${m}/${y}`;
 }
+
+// Current Thai local time as HH:MM
+export function nowHHMM(): string {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date());
+}
+
+// Whole days between two yyyy-mm-dd dates (b - a)
+export function daysBetween(a: string, b: string): number {
+  return Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+}

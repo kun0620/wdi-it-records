@@ -3,6 +3,24 @@ import { getSession } from "@/lib/supabase/server";
 import { isISODate, thDate, todayISO } from "@/lib/dates";
 import { CHECKS, type DailyRow } from "./checks";
 import DailyForm from "./DailyForm";
+import { CHECK_SYSTEM } from "../service/shared";
+
+// NG found -> open a prefilled Incident in Service Log (the v1 rule: "ถ้า NG ให้เปิด Service_Log ประเภท Incident").
+function IncidentLink({ row }: { row: DailyRow }) {
+  const ng = CHECKS.filter((c) => row[c.k] === "NG");
+  const params = new URLSearchParams({
+    type: "Incident",
+    system: CHECK_SYSTEM[ng[0].k],
+    priority: "P2",
+    detail: `Daily Check ${thDate(row.check_date)} NG: ${ng.map((c) => c.th).join(", ")}${row.remark ? ` — ${row.remark}` : ""}`,
+  });
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-900 dark:bg-red-950 dark:text-red-100">
+      <span>พบ NG {ng.length} รายการ: {ng.map((c) => c.th).join(", ")}</span>
+      <Link href={`/service/new?${params}`} className="font-medium underline underline-offset-2">เปิดงาน Incident →</Link>
+    </div>
+  );
+}
 
 export default async function DailyPage(props: PageProps<"/daily">) {
   const sp = await props.searchParams;
@@ -24,6 +42,10 @@ export default async function DailyPage(props: PageProps<"/daily">) {
   return (
     <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
       <h1 className="text-lg font-semibold">เช็คประจำวัน <span className="text-sm font-normal opacity-60">Daily Check</span></h1>
+
+      {existing && existing.ng_count > 0 && role === "editor" && (
+        <IncidentLink row={existing} />
+      )}
 
       <DailyForm
         key={date}
