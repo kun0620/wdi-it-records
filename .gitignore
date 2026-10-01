@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.vercel/
+.env*
+!.env.example
+# real company data never goes in the repo (public)
+*.xlsx
+*.xls
+*.csv
+data/
