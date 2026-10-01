@@ -6,6 +6,7 @@ const NAV = [
   { href: "/", label: "ภาพรวม" },
   { href: "/daily", label: "เช็ครายวัน" },
   { href: "/service", label: "คำขอ/ปัญหา" },
+  { href: "/exports", label: "Export" },
 ];
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
