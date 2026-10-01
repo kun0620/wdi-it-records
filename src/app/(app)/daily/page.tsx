@@ -1,0 +1,72 @@
+import Link from "next/link";
+import { getSession } from "@/lib/supabase/server";
+import { isISODate, thDate, todayISO } from "@/lib/dates";
+import { CHECKS, type DailyRow } from "./checks";
+import DailyForm from "./DailyForm";
+
+export default async function DailyPage(props: PageProps<"/daily">) {
+  const sp = await props.searchParams;
+  const today = todayISO();
+  const date = isISODate(sp.date) && sp.date <= today ? sp.date : today;
+
+  const { supabase, role } = await getSession();
+  const [{ data: recent }, { data: users }] = await Promise.all([
+    supabase.from("daily_check").select("*").order("check_date", { ascending: false }).limit(14),
+    supabase.from("list_items").select("value").eq("list_key", "user").eq("active", true).order("sort"),
+  ]);
+  const rows = (recent ?? []) as DailyRow[];
+  let existing = rows.find((r) => r.check_date === date) ?? null;
+  if (!existing) {
+    const { data } = await supabase.from("daily_check").select("*").eq("check_date", date).maybeSingle();
+    existing = (data as DailyRow | null) ?? null;
+  }
+
+  return (
+    <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+      <h1 className="text-lg font-semibold">เช็คประจำวัน <span className="text-sm font-normal opacity-60">Daily Check</span></h1>
+
+      <DailyForm
+        key={date}
+        date={date}
+        today={today}
+        existing={existing}
+        defaultChecker={existing?.checker ?? rows[0]?.checker ?? ""}
+        users={(users ?? []).map((u) => u.value)}
+        canEdit={role === "editor"}
+      />
+
+      <section className="rounded-xl border border-black/10 p-4 dark:border-white/15">
+        <h2 className="mb-3 font-medium">ย้อนหลัง 14 วันที่บันทึก</h2>
+        {rows.length === 0 ? (
+          <p className="text-sm opacity-60">ยังไม่มีข้อมูล</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs opacity-60">
+                <tr>
+                  <th className="py-1 pr-2">วันที่</th>
+                  {CHECKS.map((c) => <th key={c.k} className="hidden px-1 sm:table-cell">{c.th.split(" ")[0]}</th>)}
+                  <th className="px-1">ครบ</th><th className="px-1">NG</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.check_date} className="border-t border-black/5 dark:border-white/10">
+                    <td className="py-1.5 pr-2">
+                      <Link href={`/daily?date=${r.check_date}`} className="underline-offset-2 hover:underline">{thDate(r.check_date)}</Link>
+                    </td>
+                    {CHECKS.map((c) => (
+                      <td key={c.k} className={`hidden px-1 sm:table-cell ${r[c.k] === "NG" ? "font-semibold text-red-600" : ""}`}>{r[c.k] ?? "–"}</td>
+                    ))}
+                    <td className="px-1">{r.complete === 1 ? <span className="text-green-600">✓</span> : <span className="text-amber-600">ไม่ครบ</span>}</td>
+                    <td className="px-1">{r.ng_count || ""}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </main>
+  );
+}
