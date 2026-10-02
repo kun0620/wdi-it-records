@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   if (statuses.length) query = query.in("status", statuses);
   if (q) {
     const like = `%${q.replace(/[%_,()]/g, " ")}%`;
-    query = query.or(["asset_tag", "serial", "name", "model", "user_name", "department", "location", "ip_address", "mac"]
+    query = query.or(["asset_tag", "serial", "name", "model", "user_name", "position", "department", "location", "ip_address", "mac"]
       .map((c) => `${c}.ilike.${like}`).join(","));
   }
   const [{ data, error }, { data: ho }] = await Promise.all([
@@ -70,6 +70,7 @@ export async function GET(request: NextRequest) {
     { name: "รุ่น", w: 24, get: (r) => r.model },
     { name: "Serial No.", w: 22, get: (r) => r.serial },
     { name: "ผู้ใช้", w: 26, get: (r) => r.user_name },
+    { name: "ตำแหน่ง", w: 26, get: (r) => r.position },
     { name: "แผนก", w: 10, get: (r) => r.department },
     { name: "ที่ตั้ง", w: 16, get: (r) => r.location },
     { name: "IP Address", w: 15, get: (r) => r.ip_address },
@@ -139,16 +140,16 @@ export async function GET(request: NextRequest) {
 
   // ---------------------------------------------------------------- Handover history
   const hw = wb.addWorksheet("Handover", { views: [{ state: "frozen", ySplit: 1 }] });
-  hw.columns = [{ width: 12 }, { width: 10 }, { width: 14 }, { width: 24 }, { width: 26 }, { width: 10 }, { width: 14 }, { width: 14 }, { width: 30 }];
+  hw.columns = [{ width: 12 }, { width: 10 }, { width: 14 }, { width: 24 }, { width: 26 }, { width: 24 }, { width: 10 }, { width: 14 }, { width: 14 }, { width: 30 }];
   hw.addTable({
     name: "Handover",
     ref: "A1",
     style: { theme: "TableStyleMedium2", showRowStripes: true },
-    columns: ["วันที่", "รับ/คืน", "Asset Tag", "รุ่น", "ผู้รับ/ผู้คืน", "แผนก", "สภาพ", "เลขใบ", "หมายเหตุ"].map((name) => ({ name, filterButton: true })),
+    columns: ["วันที่", "รับ/คืน", "Asset Tag", "รุ่น", "ผู้รับ/ผู้คืน", "ตำแหน่ง", "แผนก", "สภาพ", "เลขใบ", "หมายเหตุ"].map((name) => ({ name, filterButton: true })),
     rows: handovers.length
       ? handovers.map((h) => [date(h.h_date), h.action === "Issue" ? "ส่งมอบ" : "รับคืน", h.asset_key, h.model ?? h.category,
-          h.user_name, h.dept, h.condition, h.form_ref, h.remark])
-      : [[null, null, null, null, null, null, null, null, "ยังไม่มีรายการ"]],
+          h.user_name, h.position, h.dept, h.condition, h.form_ref, h.remark])
+      : [[null, null, null, null, null, null, null, null, null, "ยังไม่มีรายการ"]],
   });
   hw.getColumn(1).numFmt = "dd/mm/yyyy";
 

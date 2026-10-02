@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
-import { getLists } from "@/lib/lists";
+import { getLists, getPositions } from "@/lib/lists";
 import { thDate, todayISO } from "@/lib/dates";
 import AssetForm from "../AssetForm";
 import { statusOf, type AssetRow } from "../shared";
@@ -17,13 +17,14 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
   if (!/^\d+$/.test(id)) notFound();
 
   const { supabase, role } = await getSession();
-  const [{ data }, { data: history }, lists, { data: handovers }] = await Promise.all([
+  const [{ data }, { data: history }, lists, { data: handovers }, positions] = await Promise.all([
     supabase.from("assets").select("*").eq("id", Number(id)).maybeSingle(),
     supabase.from("audit_log").select("id, at, actor, op, changed")
       .eq("table_name", "assets").eq("row_id", Number(id)).order("id", { ascending: false }).limit(50),
     getLists(supabase, ["user", "dept"]),
-    supabase.from("handover").select("id, h_date, action, user_name, dept, condition, form_ref, remark")
+    supabase.from("handover").select("id, h_date, action, user_name, position, dept, condition, form_ref, remark")
       .eq("asset_id", Number(id)).order("h_date", { ascending: false }).order("id", { ascending: false }),
+    getPositions(supabase),
   ]);
   if (!data) notFound();
   const rec = data as AssetRow;
@@ -60,21 +61,21 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
           )}
         </div>
         <p className="mb-2 text-sm">
-          {rec.status === "In Use" ? <>ตอนนี้อยู่กับ <b>{rec.user_name ?? "?"}</b>{rec.department && ` (${rec.department})`}</> : "ตอนนี้ไม่ได้ส่งมอบให้ใคร"}
+          {rec.status === "In Use" ? <>ตอนนี้อยู่กับ <b>{rec.user_name ?? "?"}</b>{rec.position && ` · ${rec.position}`}{rec.department && ` (${rec.department})`}</> : "ตอนนี้ไม่ได้ส่งมอบให้ใคร"}
         </p>
         <ul className="space-y-1 text-sm">
           {(handovers ?? []).map((h) => (
             <li key={h.id} className="flex flex-wrap gap-x-2 border-t border-black/5 pt-1 dark:border-white/10">
               <span className="opacity-60">{thDate(h.h_date)}</span>
               <b>{h.action === "Issue" ? "ส่งมอบให้" : "รับคืนจาก"}</b> {h.user_name}
-              <span className="opacity-60">{[h.dept, h.condition, h.form_ref && `ใบ ${h.form_ref}`, h.remark].filter(Boolean).join(" · ")}</span>
+              <span className="opacity-60">{[h.position, h.dept, h.condition, h.form_ref && `ใบ ${h.form_ref}`, h.remark].filter(Boolean).join(" · ")}</span>
             </li>
           ))}
           {!handovers?.length && <li className="opacity-60">ยังไม่มีประวัติรับ-คืน</li>}
         </ul>
       </section>
 
-      <AssetForm key={rec.updated_at} rec={rec} users={lists.user.map((u) => u.value)} depts={lists.dept.map((d) => d.value)}
+      <AssetForm key={rec.updated_at} rec={rec} users={lists.user.map((u) => u.value)} depts={lists.dept.map((d) => d.value)} positions={positions}
         canEdit={role === "editor"} today={todayISO()} />
 
       <section className="rounded-xl border border-black/10 p-4 dark:border-white/15">

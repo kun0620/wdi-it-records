@@ -3,7 +3,7 @@ import { getSession } from "@/lib/supabase/server";
 import { thDate } from "@/lib/dates";
 
 type Row = { id: number; h_date: string; action: string; asset_id: number; asset_key: string; model: string | null; category: string | null;
-  user_name: string; dept: string | null; condition: string | null; form_ref: string | null; remark: string | null };
+  user_name: string; position: string | null; dept: string | null; condition: string | null; form_ref: string | null; remark: string | null };
 
 export default async function HandoverListPage() {
   const { supabase, role } = await getSession();
@@ -28,7 +28,7 @@ export default async function HandoverListPage() {
               <div className="min-w-0 flex-1">
                 <div><span className="font-mono">{r.asset_key}</span> <span className="text-sm opacity-70">{r.model ?? r.category}</span></div>
                 <p className="truncate text-xs opacity-60">
-                  {[thDate(r.h_date), r.user_name, r.dept, r.condition, r.form_ref && `ใบ ${r.form_ref}`, r.remark].filter(Boolean).join(" · ")}
+                  {[thDate(r.h_date), r.user_name, r.position, r.dept, r.condition, r.form_ref && `ใบ ${r.form_ref}`, r.remark].filter(Boolean).join(" · ")}
                 </p>
               </div>
             </Link>

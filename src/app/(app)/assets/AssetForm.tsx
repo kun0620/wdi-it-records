@@ -1,11 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { saveAsset, type SaveState } from "./actions";
-import { ASSET_STATUSES, CATEGORY_SUGGESTIONS, type AssetRow } from "./shared";
+import { ASSET_STATUSES, CATEGORY_SUGGESTIONS, isComputer, type AssetRow } from "./shared";
 
-type Props = { rec: Partial<AssetRow>; users: string[]; depts: string[]; canEdit: boolean; today: string };
+type Props = { rec: Partial<AssetRow>; users: string[]; depts: string[]; positions?: string[]; canEdit: boolean; today: string };
 
 const input = "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 dark:border-white/20 read-only:opacity-70";
 
@@ -19,8 +19,10 @@ function Field({ label, req, full, hint, children }: { label: string; req?: bool
   );
 }
 
-export default function AssetForm({ rec, users, depts, canEdit, today }: Props) {
+export default function AssetForm({ rec, users, depts, positions = [], canEdit, today }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveAsset, {});
+  const [category, setCategory] = useState(rec.category ?? "");
+  const computer = isComputer(category, rec.asset_tag);
   const ro = !canEdit;
   const text = (k: keyof AssetRow, extra: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
     <input name={k} defaultValue={(rec[k] as string | null) ?? ""} readOnly={ro} className={input} {...extra} />
@@ -41,7 +43,7 @@ export default function AssetForm({ rec, users, depts, canEdit, today }: Props) 
           </select>
         </Field>
         <Field label="ประเภท" req hint="กำหนดตัวย่อของแท็ก เช่น Desktop → PC, Laptop → NB, Network → NW">
-          {text("category", { list: "asset-cats", required: true, autoComplete: "off" })}
+          {text("category", { list: "asset-cats", required: true, autoComplete: "off", onChange: (e) => setCategory(e.target.value) })}
           <datalist id="asset-cats">{CATEGORY_SUGGESTIONS.map((c) => <option key={c} value={c} />)}</datalist>
         </Field>
         <Field label="ชื่อ">{text("name")}</Field>
@@ -53,6 +55,14 @@ export default function AssetForm({ rec, users, depts, canEdit, today }: Props) 
           {text("user_name", { list: "asset-users", autoComplete: "off" })}
           <datalist id="asset-users">{users.map((u) => <option key={u} value={u} />)}</datalist>
         </Field>
+        {computer ? (
+          <Field label="ตำแหน่ง" hint="ตำแหน่งงานของผู้ใช้ (เฉพาะ Desktop / Laptop)">
+            {text("position", { list: "asset-positions", autoComplete: "off" })}
+            <datalist id="asset-positions">{positions.map((p) => <option key={p} value={p} />)}</datalist>
+          </Field>
+        ) : (
+          <input type="hidden" name="position" value={rec.position ?? ""} />
+        )}
         <Field label="แผนก">
           {text("department", { list: "asset-depts", autoComplete: "off" })}
           <datalist id="asset-depts">{depts.map((d) => <option key={d} value={d} />)}</datalist>

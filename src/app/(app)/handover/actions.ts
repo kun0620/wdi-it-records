@@ -33,6 +33,7 @@ export async function saveHandover(_prev: SaveState, formData: FormData): Promis
     action,
     h_date: date,
     user_name: get("user_name"),
+    position: get("position") || null,
     dept: get("dept") || null,
     condition: get("condition") || null,
     form_ref: get("form_ref") || null,

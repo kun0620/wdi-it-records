@@ -8,7 +8,7 @@ import { ASSET_STATUSES } from "./shared";
 
 export type SaveState = { error?: string };
 
-const TEXT = ["serial", "name", "model", "category", "manufacturer", "user_name", "department", "location",
+const TEXT = ["serial", "name", "model", "category", "manufacturer", "user_name", "position", "department", "location",
   "ip_address", "mac", "vendor", "remark"] as const;
 
 export async function saveAsset(_prev: SaveState, formData: FormData): Promise<SaveState> {

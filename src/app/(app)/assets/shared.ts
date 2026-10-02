@@ -7,6 +7,7 @@ export type AssetRow = {
   category: string | null;
   manufacturer: string | null;
   user_name: string | null;
+  position: string | null;
   department: string | null;
   location: string | null;
   status: AssetStatus;
@@ -30,6 +31,10 @@ export const ASSET_STATUSES = [
   { v: "Planned", th: "แผนจัดซื้อ", tone: "bg-violet-100 text-violet-900 dark:bg-violet-950 dark:text-violet-100" },
 ] as const;
 export type AssetStatus = (typeof ASSET_STATUSES)[number]["v"];
+
+// Desktop / Laptop: the only kinds that carry the user's job position
+export const isComputer = (category?: string | null, tag?: string | null) =>
+  /^WDI-(PC|NB)-/.test(tag ?? "") || /^(desktop|laptop|notebook)/i.test(category ?? "");
 
 export const statusOf = (v: string) => ASSET_STATUSES.find((s) => s.v === v);
 

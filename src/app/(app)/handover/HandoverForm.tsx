@@ -4,13 +4,13 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { saveHandover, type SaveState } from "./actions";
 
-export type PickAsset = { id: number; asset_tag: string; label: string; status: string; user_name: string | null; department: string | null };
+export type PickAsset = { id: number; asset_tag: string; label: string; status: string; user_name: string | null; position: string | null; department: string | null; computer: boolean };
 
-type Props = { assets: PickAsset[]; initialAsset: number | null; users: string[]; depts: string[]; conditions: string[]; today: string };
+type Props = { assets: PickAsset[]; initialAsset: number | null; users: string[]; positions: string[]; depts: string[]; conditions: string[]; today: string };
 
 const input = "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 dark:border-white/20";
 
-export default function HandoverForm({ assets, initialAsset, users, depts, conditions, today }: Props) {
+export default function HandoverForm({ assets, initialAsset, users, positions, depts, conditions, today }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveHandover, {});
   const [assetId, setAssetId] = useState<number | null>(initialAsset);
   const asset = assets.find((a) => a.id === assetId) ?? null;
@@ -51,6 +51,13 @@ export default function HandoverForm({ assets, initialAsset, users, depts, condi
               <input name="user_name" list="ho-users" defaultValue={act === "Return" ? asset.user_name ?? "" : ""} required autoComplete="off" className={input} />
               <datalist id="ho-users">{users.map((u) => <option key={u} value={u} />)}</datalist>
             </label>
+            {asset.computer && (
+              <label className="block space-y-1">
+                <span className="text-sm">ตำแหน่ง</span>
+                <input name="position" list="ho-positions" defaultValue={act === "Return" ? asset.position ?? "" : ""} autoComplete="off" className={input} />
+                <datalist id="ho-positions">{positions.map((p) => <option key={p} value={p} />)}</datalist>
+              </label>
+            )}
             <label className="block space-y-1">
               <span className="text-sm">แผนก</span>
               <select name="dept" defaultValue={asset.department ?? ""} className={input}>

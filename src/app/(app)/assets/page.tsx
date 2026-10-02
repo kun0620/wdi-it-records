@@ -18,7 +18,7 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
   if (type) query = query.like("asset_tag", `WDI-${type}-%`);
   if (q) {
     const like = `%${q.replace(/[%_,()]/g, " ")}%`;
-    query = query.or(["asset_tag", "serial", "name", "model", "user_name", "department", "location", "ip_address", "mac"]
+    query = query.or(["asset_tag", "serial", "name", "model", "user_name", "position", "department", "location", "ip_address", "mac"]
       .map((c) => `${c}.ilike.${like}`).join(","));
   }
   const { data, error } = await query;
@@ -99,7 +99,7 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
                     {r.name && r.model && <span className="font-normal opacity-60"> · {r.name}</span>}
                   </div>
                   <p className="truncate text-xs opacity-60">
-                    {[r.category, r.user_name, r.department, r.location, r.ip_address, r.serial && `S/N ${r.serial}`].filter(Boolean).join(" · ")}
+                    {[r.category, r.user_name, r.position, r.department, r.location, r.ip_address, r.serial && `S/N ${r.serial}`].filter(Boolean).join(" · ")}
                   </p>
                 </div>
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${st?.tone ?? ""}`}>{st?.th ?? r.status}</span>

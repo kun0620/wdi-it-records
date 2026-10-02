@@ -17,3 +17,9 @@ export async function getLists(supabase: SupabaseClient, keys: string[]): Promis
   for (const r of data ?? []) out[r.list_key].push({ value: r.value, label: r.label });
   return out;
 }
+
+// Job positions already used on assets (suggestions for the Desktop/Laptop "position" field).
+export async function getPositions(supabase: SupabaseClient): Promise<string[]> {
+  const { data } = await supabase.from("assets").select("position").not("position", "is", null);
+  return [...new Set((data ?? []).map((r) => r.position as string))].sort();
+}
