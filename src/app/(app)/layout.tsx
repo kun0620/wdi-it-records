@@ -7,6 +7,7 @@ const NAV = [
   { href: "/daily", label: "เช็ครายวัน" },
   { href: "/service", label: "คำขอ/ปัญหา" },
   { href: "/assets", label: "ทรัพย์สิน" },
+  { href: "/handover", label: "รับ-คืน" },
   { href: "/exports", label: "Export" },
 ];
 
@@ -16,15 +17,15 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-black/10 dark:border-white/15">
-        <div className="mx-auto flex w-full max-w-3xl items-center gap-4 px-4 py-3">
-          <span className="font-semibold">WDI IT</span>
-          <nav className="flex flex-1 gap-3 text-sm">
+        <div className="mx-auto flex w-full max-w-4xl items-center gap-4 px-4 py-3">
+          <span className="shrink-0 font-semibold">WDI IT</span>
+          <nav className="flex min-w-0 flex-1 gap-3 overflow-x-auto whitespace-nowrap text-sm">
             {NAV.map((n) => (
               <Link key={n.href} href={n.href} className="opacity-80 hover:opacity-100">{n.label}</Link>
             ))}
           </nav>
           <span className="hidden text-xs opacity-60 sm:inline">{user?.email} · {role ?? "-"}</span>
-          <form action={signOut}>
+          <form action={signOut} className="shrink-0">
             <button className="rounded-md border border-black/15 px-2.5 py-1 text-xs dark:border-white/20">ออก</button>
           </form>
         </div>
