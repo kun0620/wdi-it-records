@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/supabase/server";
 import { daysBetween, thDate, todayISO } from "@/lib/dates";
 import { PRIORITY_TONE, STATUS_TONE } from "./service/shared";
+import { statusOf } from "./assets/shared";
 
 type Period = { received: number; incidents: number; p1: number; closed: number; escalated: number; avg_hours: number | null };
 type Dash = {
@@ -182,7 +183,7 @@ export default async function Dashboard() {
           </table>
           <p className="mt-2 text-xs opacity-70">รอเซ็นรับรองรายไตรมาส {mt.pending_signoff} · ทดสอบไม่ผ่านเดือนนี้ {mt.failed_month}</p>
           <h2 className="mb-1 mt-4 font-medium">ทรัพย์สิน IT <span className="text-xs font-normal opacity-60">รวม {totalAssets}</span></h2>
-          <p className="text-sm opacity-80">{Object.entries(d.assets).map(([k, v]) => `${k} ${v}`).join(" · ")}</p>
+          <p className="text-sm opacity-80">{Object.entries(d.assets).map(([k, v]) => `${statusOf(k)?.th ?? k} ${v}`).join(" · ")}</p>
         </section>
       </div>
 
