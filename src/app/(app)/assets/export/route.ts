@@ -17,16 +17,17 @@ const date = (v: string | null) => (v ? new Date(`${v}T00:00:00Z`) : null);
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
-  const status = sp.get("status")?.trim() ?? "";
-  const type = sp.get("type")?.trim() ?? "";
+  // type / status may repeat (?type=PC&type=NB) or be comma-separated; unknown values are ignored
+  const multi = (k: string) => sp.getAll(k).flatMap((v) => v.split(",")).map((v) => v.trim()).filter(Boolean);
+  const types = multi("type").filter((t) => PREFIXES.some((p) => p.p === t));
+  const statuses = multi("status").filter((s) => ASSET_STATUSES.some((x) => x.v === s));
   const q = sp.get("q")?.trim() ?? "";
 
   const { supabase, role } = await getSession();
   if (!role) return new NextResponse("Forbidden", { status: 403 });
 
   let query = supabase.from("assets").select("*").order("asset_tag", { nullsFirst: false }).limit(5000);
-  if (status) query = query.eq("status", status);
-  if (type) query = query.like("asset_tag", `WDI-${type}-%`);
+  if (statuses.length) query = query.in("status", statuses);
   if (q) {
     const like = `%${q.replace(/[%_,()]/g, " ")}%`;
     query = query.or(["asset_tag", "serial", "name", "model", "user_name", "department", "location", "ip_address", "mac"]
@@ -37,7 +38,10 @@ export async function GET(request: NextRequest) {
     supabase.from("handover_v").select("*").order("h_date", { ascending: false }).order("id", { ascending: false }),
   ]);
   if (error) return new NextResponse(error.message, { status: 500 });
-  const rows = (data ?? []) as AssetRow[];
+  // type = tag prefix; filtered here so it combines cleanly with the search's OR filter
+  const rows = ((data ?? []) as AssetRow[]).filter((r) => !types.length || types.some((t) => r.asset_tag?.startsWith(`WDI-${t}-`)));
+  const ids = new Set(rows.map((r) => r.id));
+  const handovers = (ho ?? []).filter((h) => ids.has(h.asset_id));
   const today = todayISO();
 
   const wb = new ExcelJS.Workbook();
@@ -48,8 +52,12 @@ export async function GET(request: NextRequest) {
   const ws = wb.addWorksheet("Assets", { views: [{ state: "frozen", ySplit: 3, xSplit: 1 }] });
   ws.getCell("A1").value = "ทะเบียนทรัพย์สิน IT · IT Asset Register";
   ws.getCell("A1").font = { bold: true, size: 14, color: { argb: NAVY } };
-  const filt = [status && `สถานะ ${statusOf(status)?.th ?? status}`, type && `ประเภท ${type}`, q && `ค้นหา "${q}"`].filter(Boolean).join(" · ");
-  ws.getCell("A2").value = `ข้อมูล ณ ${today.split("-").reverse().join("/")} · ${rows.length} รายการ${filt ? ` · ${filt}` : " · ทุกสถานะ"}`;
+  const filt = [
+    `ประเภท ${types.length ? types.map((t) => PREFIXES.find((p) => p.p === t)!.th).join(", ") : "ทั้งหมด"}`,
+    `สถานะ ${statuses.length ? statuses.map((s) => statusOf(s)!.th).join(", ") : "ทั้งหมด"}`,
+    q && `ค้นหา "${q}"`,
+  ].filter(Boolean).join(" · ");
+  ws.getCell("A2").value = `ข้อมูล ณ ${today.split("-").reverse().join("/")} · ${rows.length} รายการ · ${filt}`;
   ws.getCell("A2").font = { italic: true, size: 9, color: { argb: "FF595959" } };
 
   const cols: { name: string; w: number; get: (r: AssetRow) => ExcelJS.CellValue; fmt?: string }[] = [
@@ -108,11 +116,11 @@ export async function GET(request: NextRequest) {
   const sum = wb.addWorksheet("Summary");
   sum.getCell("A1").value = "สรุปทรัพย์สินตามประเภทและสถานะ";
   sum.getCell("A1").font = { bold: true, size: 14, color: { argb: NAVY } };
-  const statuses = ASSET_STATUSES.map((s) => s.v);
-  const groups = [...PREFIXES, { p: "", th: "ยังไม่มีแท็ก" }];
+  const allStatuses = ASSET_STATUSES.map((s) => s.v);
+  const groups = types.length ? PREFIXES.filter((p) => types.includes(p.p)) : [...PREFIXES, { p: "", th: "ยังไม่มีแท็ก" }];
   const count = (p: string, s: string) =>
     rows.filter((r) => r.status === s && (p ? r.asset_tag?.startsWith(`WDI-${p}-`) : !r.asset_tag)).length;
-  sum.columns = [{ width: 22 }, ...statuses.map(() => ({ width: 12 })), { width: 10 }];
+  sum.columns = [{ width: 22 }, ...allStatuses.map(() => ({ width: 12 })), { width: 10 }];
   sum.addTable({
     name: "Summary",
     ref: "A3",
@@ -124,7 +132,7 @@ export async function GET(request: NextRequest) {
       { name: "รวม", totalsRowFunction: "sum" as const },
     ],
     rows: groups.map((g) => {
-      const n = statuses.map((s) => count(g.p, s));
+      const n = allStatuses.map((s) => count(g.p, s));
       return [g.p ? `${g.p} · ${g.th}` : g.th, ...n, n.reduce((a, b) => a + b, 0)];
     }),
   });
@@ -137,15 +145,15 @@ export async function GET(request: NextRequest) {
     ref: "A1",
     style: { theme: "TableStyleMedium2", showRowStripes: true },
     columns: ["วันที่", "รับ/คืน", "Asset Tag", "รุ่น", "ผู้รับ/ผู้คืน", "แผนก", "สภาพ", "เลขใบ", "หมายเหตุ"].map((name) => ({ name, filterButton: true })),
-    rows: (ho ?? []).length
-      ? (ho ?? []).map((h) => [date(h.h_date), h.action === "Issue" ? "ส่งมอบ" : "รับคืน", h.asset_key, h.model ?? h.category,
+    rows: handovers.length
+      ? handovers.map((h) => [date(h.h_date), h.action === "Issue" ? "ส่งมอบ" : "รับคืน", h.asset_key, h.model ?? h.category,
           h.user_name, h.dept, h.condition, h.form_ref, h.remark])
       : [[null, null, null, null, null, null, null, null, "ยังไม่มีรายการ"]],
   });
   hw.getColumn(1).numFmt = "dd/mm/yyyy";
 
   const buf = Buffer.from(await wb.xlsx.writeBuffer());
-  const name = `WDI-Assets_${today}${type ? `_${type}` : ""}${status ? `_${status.replace(/\s+/g, "")}` : ""}.xlsx`;
+  const name = `WDI-Assets_${today}${types.length ? `_${types.join("-")}` : ""}${statuses.length ? `_${statuses.map((s) => s.replace(/\s+/g, "")).join("-")}` : ""}.xlsx`;
   return new NextResponse(buf, {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

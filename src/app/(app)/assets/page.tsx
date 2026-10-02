@@ -29,9 +29,6 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-lg font-semibold">ทรัพย์สิน IT <span className="text-sm font-normal opacity-60">Assets</span></h1>
         <div className="flex flex-wrap justify-end gap-2">
-          {/* plain <a>: a file download, not a client-side navigation */}
-          <a href={`/assets/export?${new URLSearchParams({ type, status, q })}`}
-            className="rounded-md border border-black/15 px-4 py-2 text-sm dark:border-white/20">Export Excel</a>
           <Link href={`/assets/labels?${new URLSearchParams({ type, status })}`}
             className="rounded-md border border-black/15 px-4 py-2 text-sm dark:border-white/20">พิมพ์ป้าย QR</Link>
           {role === "editor" && <Link href="/assets/new" className="rounded-md bg-foreground px-4 py-2 text-sm text-background">+ เพิ่ม</Link>}
@@ -50,6 +47,40 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
         <input name="q" defaultValue={q} placeholder="ค้นหา แท็ก / S/N / รุ่น / ผู้ใช้ / IP" className={`${ctl} min-w-48 flex-1`} />
         <button className={ctl}>ค้นหา</button>
       </form>
+
+      {/* Export: pick any combination of types/statuses; a plain GET form so the browser downloads the file */}
+      <details className="rounded-xl border border-black/10 dark:border-white/15">
+        <summary className="cursor-pointer select-none px-4 py-2.5 text-sm font-medium">Export Excel — เลือกประเภท / สถานะ</summary>
+        <form action="/assets/export" method="get" className="space-y-3 border-t border-black/10 px-4 py-3 dark:border-white/15">
+          <fieldset>
+            <legend className="mb-1.5 text-xs opacity-60">ประเภท (ไม่ติ๊กเลย = ทั้งหมด)</legend>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {PREFIXES.map((p) => (
+                <label key={p.p} className="flex items-center gap-1.5 text-sm">
+                  <input type="checkbox" name="type" value={p.p} defaultChecked={type === p.p} className="size-4" />
+                  {p.th} <span className="text-xs opacity-50">{p.p}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend className="mb-1.5 text-xs opacity-60">สถานะ (ไม่ติ๊กเลย = ทั้งหมด รวมเลิกใช้และแผนจัดซื้อ)</legend>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {ASSET_STATUSES.map((s) => (
+                <label key={s.v} className="flex items-center gap-1.5 text-sm">
+                  <input type="checkbox" name="status" value={s.v} defaultChecked={status === s.v} className="size-4" />
+                  {s.th}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          {q && <input type="hidden" name="q" value={q} />}
+          <div className="flex flex-wrap items-center gap-3">
+            <button className="rounded-md bg-foreground px-4 py-2 text-sm text-background">ดาวน์โหลด .xlsx</button>
+            {q && <span className="text-xs opacity-60">ใช้คำค้นหา “{q}” ด้วย</span>}
+          </div>
+        </form>
+      </details>
 
       {error && <p className="text-sm text-red-600">{error.message}</p>}
       <p className="text-xs opacity-60">{rows.length} รายการ</p>
