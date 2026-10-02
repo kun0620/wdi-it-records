@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
 import { getLists } from "@/lib/lists";
@@ -32,6 +33,11 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
         <h1 className="font-mono text-lg font-semibold">{rec.asset_tag ?? "ยังไม่มีแท็ก"}</h1>
         <span className={`rounded-full px-2 py-0.5 text-xs ${st?.tone ?? ""}`}>{st?.th ?? rec.status}</span>
         {rec.source_sheet && <span className="text-xs opacity-50">นำเข้าจากชีต {rec.source_sheet}</span>}
+        {rec.asset_tag && (
+          <Link href={`/assets/labels?ids=${rec.id}`} className="ml-auto rounded-md border border-black/15 px-3 py-1.5 text-sm dark:border-white/20">
+            พิมพ์ป้าย QR
+          </Link>
+        )}
       </div>
       {sp.saved && (
         <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-900 dark:bg-green-950 dark:text-green-100">บันทึกแล้ว</p>

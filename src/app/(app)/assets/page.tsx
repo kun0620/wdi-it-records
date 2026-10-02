@@ -28,7 +28,11 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
     <main className="mx-auto w-full max-w-4xl space-y-4 px-4 py-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-lg font-semibold">ทรัพย์สิน IT <span className="text-sm font-normal opacity-60">Assets</span></h1>
-        {role === "editor" && <Link href="/assets/new" className="rounded-md bg-foreground px-4 py-2 text-sm text-background">+ เพิ่ม</Link>}
+        <div className="flex gap-2">
+          <Link href={`/assets/labels?${new URLSearchParams({ type, status })}`}
+            className="rounded-md border border-black/15 px-4 py-2 text-sm dark:border-white/20">พิมพ์ป้าย QR</Link>
+          {role === "editor" && <Link href="/assets/new" className="rounded-md bg-foreground px-4 py-2 text-sm text-background">+ เพิ่ม</Link>}
+        </div>
       </div>
 
       <form className="flex flex-wrap gap-2">
