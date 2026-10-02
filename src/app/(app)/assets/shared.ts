@@ -26,6 +26,7 @@ export const ASSET_STATUSES = [
   { v: "In Use", th: "ใช้งาน", tone: "bg-green-100 text-green-900 dark:bg-green-950 dark:text-green-100" },
   { v: "In Stock", th: "สต็อก", tone: "bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-100" },
   { v: "Repair", th: "ซ่อม", tone: "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100" },
+  { v: "Waiting", th: "รอของ", tone: "bg-orange-100 text-orange-900 dark:bg-orange-950 dark:text-orange-100" },
   { v: "Retired", th: "เลิกใช้", tone: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" },
   { v: "Lost", th: "สูญหาย", tone: "bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-100" },
   { v: "Planned", th: "แผนจัดซื้อ", tone: "bg-violet-100 text-violet-900 dark:bg-violet-950 dark:text-violet-100" },

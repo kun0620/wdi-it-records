@@ -10,7 +10,7 @@ import { ASSET_STATUSES, PREFIXES, statusOf, type AssetRow } from "../shared";
 
 const NAVY = "FF1F4E78";
 const STATUS_FILL: Record<string, string> = {
-  "In Use": "FFE2F0D9", "In Stock": "FFDDEBF7", Repair: "FFFFF2CC", Retired: "FFEDEDED", Lost: "FFF8D7DA", Planned: "FFE9E1F5",
+  "In Use": "FFE2F0D9", "In Stock": "FFDDEBF7", Repair: "FFFFF2CC", Waiting: "FFFCE4D6", Retired: "FFEDEDED", Lost: "FFF8D7DA", Planned: "FFE9E1F5",
 };
 
 const date = (v: string | null) => (v ? new Date(`${v}T00:00:00Z`) : null);

@@ -21,7 +21,7 @@ export default async function LabelsPage(props: PageProps<"/assets/labels">) {
   else {
     if (type) query = query.like("asset_tag", `WDI-${type}-%`);
     if (status) query = query.eq("status", status);
-    else query = query.not("status", "in", "(Retired,Lost,Planned)");
+    else query = query.not("status", "in", "(Retired,Lost,Planned,Waiting)");
   }
   const { data } = await query;
   const rows = (data ?? []) as Pick<AssetRow, "id" | "asset_tag" | "model" | "manufacturer" | "name" | "category" | "serial">[];
@@ -59,8 +59,8 @@ export default async function LabelsPage(props: PageProps<"/assets/labels">) {
               {PREFIXES.map((p) => <option key={p.p} value={p.p}>{p.p} · {p.th}</option>)}
             </select>
             <select name="status" defaultValue={status} className={ctl}>
-              <option value="">ที่มีอยู่ (ไม่รวมเลิกใช้/หาย)</option>
-              {ASSET_STATUSES.filter((s) => s.v !== "Planned").map((s) => <option key={s.v} value={s.v}>{s.th}</option>)}
+              <option value="">ที่มีอยู่ (ไม่รวมเลิกใช้/หาย/รอของ)</option>
+              {ASSET_STATUSES.filter((s) => s.v !== "Planned" && s.v !== "Waiting").map((s) => <option key={s.v} value={s.v}>{s.th}</option>)}
             </select>
             <label className="flex items-center gap-2 text-sm">ข้ามช่องที่ใช้ไปแล้ว
               <input name="skip" type="number" min={0} max={23} defaultValue={skip || ""} className={`${ctl} w-20`} />
