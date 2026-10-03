@@ -5,6 +5,7 @@ import { getLists, getPositions } from "@/lib/lists";
 import { thDate, todayISO } from "@/lib/dates";
 import AssetForm from "../AssetForm";
 import { statusOf, type AssetRow } from "../shared";
+import { PRIORITY_TONE, STATUS_TONE } from "../../service/shared";
 
 type Audit = { id: number; at: string; actor: string | null; op: string; changed: Record<string, [unknown, unknown]> | null };
 
@@ -17,7 +18,7 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
   if (!/^\d+$/.test(id)) notFound();
 
   const { supabase, role } = await getSession();
-  const [{ data }, { data: history }, lists, { data: handovers }, positions] = await Promise.all([
+  const [{ data }, { data: history }, lists, { data: handovers }, positions, { data: services }] = await Promise.all([
     supabase.from("assets").select("*").eq("id", Number(id)).maybeSingle(),
     supabase.from("audit_log").select("id, at, actor, op, changed")
       .eq("table_name", "assets").eq("row_id", Number(id)).order("id", { ascending: false }).limit(50),
@@ -25,6 +26,8 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
     supabase.from("handover").select("id, h_date, action, user_name, position, dept, condition, form_ref, remark")
       .eq("asset_id", Number(id)).order("h_date", { ascending: false }).order("id", { ascending: false }),
     getPositions(supabase),
+    supabase.from("service_log").select("id, req_no, req_date, type, priority, status, detail, hours")
+      .eq("asset_id", Number(id)).order("req_date", { ascending: false }).order("id", { ascending: false }),
   ]);
   if (!data) notFound();
   const rec = data as AssetRow;
@@ -72,6 +75,31 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
             </li>
           ))}
           {!handovers?.length && <li className="opacity-60">ยังไม่มีประวัติรับ-คืน</li>}
+        </ul>
+      </section>
+
+      <section className="rounded-xl border border-black/10 p-4 dark:border-white/15">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <h2 className="font-medium">ประวัติแจ้งปัญหา / ซ่อม <span className="text-xs font-normal opacity-60">{services?.length ?? 0} ครั้ง</span></h2>
+          {role === "editor" && (
+            <Link href={`/service/new?asset=${rec.id}`} className="rounded-md border border-black/15 px-3 py-1.5 text-sm dark:border-white/20">
+              + แจ้งปัญหาเครื่องนี้
+            </Link>
+          )}
+        </div>
+        <ul className="space-y-1 text-sm">
+          {(services ?? []).map((s) => (
+            <li key={s.id} className="border-t border-black/5 pt-1 first:border-0 dark:border-white/10">
+              <Link href={`/service/${s.id}`} className="flex flex-wrap items-center gap-x-2 hover:underline">
+                <span className={`rounded px-1.5 text-xs font-semibold ${PRIORITY_TONE[s.priority] ?? ""}`}>{s.priority}</span>
+                <span className="font-medium">{s.req_no}</span>
+                <span className="opacity-60">{thDate(s.req_date)} · {s.type}{s.hours != null ? ` · ${s.hours} ชม.` : ""}</span>
+                <span className={`rounded-full px-2 text-xs ${STATUS_TONE[s.status] ?? ""}`}>{s.status}</span>
+                {s.detail && <span className="w-full truncate opacity-70">{s.detail}</span>}
+              </Link>
+            </li>
+          ))}
+          {!services?.length && <li className="opacity-60">ยังไม่เคยแจ้งปัญหา</li>}
         </ul>
       </section>
 

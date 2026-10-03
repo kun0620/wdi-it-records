@@ -20,9 +20,11 @@ export async function saveService(_prev: SaveState, formData: FormData): Promise
   const reqDate = formData.get("req_date");
   if (!isISODate(reqDate)) return { error: "กรุณากรอกวันที่แจ้ง" };
 
-  const row: Record<string, string | null> = { req_date: reqDate, req_time: time(formData.get("req_time")) };
+  const row: Record<string, string | number | null> = { req_date: reqDate, req_time: time(formData.get("req_time")) };
   for (const k of TEXT_FIELDS) row[k] = String(formData.get(k) ?? "").trim() || null;
   for (const [k, label] of Object.entries(REQUIRED)) if (!row[k]) return { error: `กรุณากรอก: ${label}` };
+
+  row.asset_id = Number(formData.get("asset_id")) || null;
 
   const closeDate = formData.get("close_date");
   row.close_date = isISODate(closeDate) ? closeDate : null;

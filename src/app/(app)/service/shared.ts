@@ -17,6 +17,8 @@ export type ServiceRow = {
   escalation: string | null;
   esc_ref: string | null;
   updated_at: string;
+  asset_id: number | null;
+  asset_tag?: string | null;      // from it.service_log_v
 };
 
 export const SERVICE_LISTS = ["status", "priority", "type", "system", "dept", "user", "escalation"];

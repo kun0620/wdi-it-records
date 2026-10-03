@@ -10,11 +10,11 @@ export default async function ServiceListPage(props: PageProps<"/service">) {
   const saved = typeof sp.saved === "string" ? Number(sp.saved) : null;
 
   const { supabase, role } = await getSession();
-  let query = supabase.from("service_log").select("*").order("id", { ascending: false }).limit(500);
+  let query = supabase.from("service_log_v").select("*").order("id", { ascending: false }).limit(500);
   if (view === "open") query = query.in("status", OPEN_STATUSES);
   if (q) {
     const like = `%${q.replace(/[%_,()]/g, " ")}%`;
-    query = query.or(["req_no", "requester", "detail", "system", "action"].map((c) => `${c}.ilike.${like}`).join(","));
+    query = query.or(["req_no", "requester", "detail", "system", "action", "asset_tag"].map((c) => `${c}.ilike.${like}`).join(","));
   }
   const { data, error } = await query;
   const rows = (data ?? []) as ServiceRow[];
@@ -62,6 +62,7 @@ export default async function ServiceListPage(props: PageProps<"/service">) {
                     <span className="font-medium">{r.req_no}</span>
                     <span className="text-sm opacity-70">{r.requester}</span>
                     {r.system && <span className="text-xs opacity-50">· {r.system}</span>}
+                    {r.asset_tag && <span className="font-mono text-xs opacity-60">· {r.asset_tag}</span>}
                   </div>
                   {r.detail && <p className="truncate text-sm opacity-80">{r.detail}</p>}
                   <p className="text-xs opacity-50">

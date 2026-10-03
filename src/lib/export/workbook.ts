@@ -13,7 +13,7 @@ const NAVY = "FF1F4E78";
 
 const SHEETS: SheetDef[] = [
   {
-    name: "Service_Log", table: "service_log", order: "id",
+    name: "Service_Log", table: "service_log_v", order: "id",
     title: "Service Log – บันทึกคำขอ / แจ้งปัญหา / เหตุขัดข้อง · IT服务记录",
     note: "เลขที่คำขอ = เลขบนใบ WDIT-F-IT-01 (SR-YYYY-###) · ชั่วโมง = เวลาตามปฏิทิน (calendar hours)",
     cols: [
@@ -24,6 +24,7 @@ const SHEETS: SheetDef[] = [
       { h: "Dept\nแผนก\n部门", k: "dept", w: 9 },
       { h: "Type\nประเภท\n类型", k: "type", w: 15 },
       { h: "System\nระบบ\n系统", k: "system", w: 13 },
+      { h: "Asset Tag\nรหัสทรัพย์สิน\n资产编号", k: "asset_tag", w: 14 },
       { h: "Description\nรายละเอียด\n问题描述", k: "detail", w: 36 },
       { h: "Priority\nความสำคัญ\n优先级", k: "priority", w: 9 },
       { h: "Action / Solution\nวิธีแก้ไข\n处理方法", k: "action", w: 36 },

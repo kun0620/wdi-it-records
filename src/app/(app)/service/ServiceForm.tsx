@@ -2,13 +2,14 @@
 
 import { useActionState, useRef } from "react";
 import Link from "next/link";
-import type { Lists } from "@/lib/lists";
+import type { AssetOption, Lists } from "@/lib/lists";
 import { saveService, type SaveState } from "./actions";
 import type { ServiceRow } from "./shared";
 
 type Props = {
   rec: Partial<ServiceRow>;
   lists: Lists;
+  assets: AssetOption[];
   canEdit: boolean;
   today: string;
   now: string;
@@ -25,7 +26,7 @@ function Field({ label, req, full, children }: { label: string; req?: boolean; f
   );
 }
 
-export default function ServiceForm({ rec, lists, canEdit, today, now }: Props) {
+export default function ServiceForm({ rec, lists, assets, canEdit, today, now }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveService, {});
   const form = useRef<HTMLFormElement>(null);
   const isNew = !rec.id;
@@ -78,6 +79,12 @@ export default function ServiceForm({ rec, lists, canEdit, today, now }: Props) 
           <datalist id="svc-users">{(lists.user ?? []).map((u) => <option key={u.value} value={u.value} />)}</datalist>
         </Field>
         <Field label="แผนก">{select("dept", "dept")}</Field>
+        <Field label="ทรัพย์สินที่เกี่ยวข้อง" full>
+          <select name="asset_id" defaultValue={rec.asset_id ?? ""} disabled={ro} className={input}>
+            <option value="">— ไม่ระบุ —</option>
+            {assets.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
+          </select>
+        </Field>
         <Field label="ประเภท" req>{select("type", "type", { req: true })}</Field>
         <Field label="ระบบ">{select("system", "system")}</Field>
         <Field label="ความสำคัญ" req full>{select("priority", "priority", { req: true, blank: false })}</Field>
