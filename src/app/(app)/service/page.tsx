@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { Clock3, Plus, Search, Tag, User } from "lucide-react";
 import { getSession } from "@/lib/supabase/server";
-import { daysBetween, thDate, todayISO } from "@/lib/dates";
-import { OPEN_STATUSES, PRIORITY_TONE, STATUS_TONE, type ServiceRow } from "./shared";
+import { daysBetween, shortThaiDate, todayISO } from "@/lib/dates";
+import { OPEN_STATUSES, SERVICE_TONE, type ServiceRow } from "./shared";
 
 export default async function ServiceListPage(props: PageProps<"/service">) {
   const sp = await props.searchParams;
@@ -16,66 +17,65 @@ export default async function ServiceListPage(props: PageProps<"/service">) {
     const like = `%${q.replace(/[%_,()]/g, " ")}%`;
     query = query.or(["req_no", "requester", "detail", "system", "action", "asset_tag"].map((c) => `${c}.ilike.${like}`).join(","));
   }
-  const { data, error } = await query;
+  const [{ data, error }, { count: openCount }, { count: allCount }] = await Promise.all([
+    query,
+    supabase.from("service_log").select("id", { count: "exact", head: true }).in("status", OPEN_STATUSES),
+    supabase.from("service_log").select("id", { count: "exact", head: true }),
+  ]);
   const rows = (data ?? []) as ServiceRow[];
   const today = todayISO();
   const savedRow = saved ? rows.find((r) => r.id === saved) : null;
+  const tab = (v: "open" | "all") => `/service?${new URLSearchParams({ ...(v === "all" ? { view: "all" } : {}), ...(q ? { q } : {}) })}`;
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-bold sm:text-2xl">คำขอ / ปัญหา <span className="text-sm font-normal opacity-60">Service Log</span></h1>
-        {role === "editor" && (
-          <Link href="/service/new" className="btn btn-primary">+ เพิ่ม</Link>
-        )}
-      </div>
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-3 py-3 sm:gap-4 sm:px-5 sm:py-5 lg:px-7">
+      <section className="card flex flex-col gap-2.5 !p-3 sm:flex-row sm:items-center sm:!p-4">
+        <div className="row" style={{ gap: 8 }}>
+          <div className="seg" role="group" aria-label="ตัวกรอง">
+            <Link href={tab("open")} className={view === "open" ? "on" : ""} aria-pressed={view === "open"}>เปิดอยู่ <span className="muted">{openCount ?? 0}</span></Link>
+            <Link href={tab("all")} className={view === "all" ? "on" : ""} aria-pressed={view === "all"}>ทั้งหมด <span className="muted">{allCount ?? 0}</span></Link>
+          </div>
+          <span className="flex-1 sm:hidden" />
+          {role === "editor" && <Link href="/service/new" className="btn btn-primary sm:hidden"><Plus className="size-4" />เพิ่ม</Link>}
+        </div>
+        <form className="iwrap flex-1">
+          {view === "all" && <input type="hidden" name="view" value="all" />}
+          <Search className="ic prefix size-4" />
+          <input name="q" defaultValue={q} className="input pl search" placeholder="ค้นหา SR, ผู้แจ้ง, ระบบ, แท็ก…" aria-label="ค้นหางาน" />
+        </form>
+        {role === "editor" && <Link href="/service/new" className="btn btn-primary hidden sm:inline-flex"><Plus className="size-4" />แจ้งปัญหา</Link>}
+      </section>
 
-      {saved && (
-        <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-900 dark:bg-green-950 dark:text-green-100">
-          บันทึกแล้ว {savedRow?.req_no ?? ""}
-        </p>
-      )}
+      {saved && <p className="banner info small">บันทึกแล้ว {savedRow?.req_no ?? ""}</p>}
+      {error && <p className="ierr">{error.message}</p>}
 
-      <form className="flex flex-wrap gap-2">
-        <select name="view" defaultValue={view} className="input w-auto text-sm">
-          <option value="open">เฉพาะงานค้าง</option>
-          <option value="all">ทั้งหมด</option>
-        </select>
-        <input name="q" defaultValue={q} placeholder="ค้นหา เลขที่ / ชื่อ / ระบบ / รายละเอียด"
-          className="min-w-48 flex-1 input w-auto text-sm" />
-        <button className="btn btn-secondary px-3">ค้นหา</button>
-      </form>
-
-      {error && <p className="text-sm text-red-600">{error.message}</p>}
-
-      <p className="text-xs opacity-60">{rows.length} รายการ</p>
-      <ul className="card divide-y divide-[var(--line)] overflow-hidden">
-        {rows.length === 0 && <li className="px-4 py-6 text-center text-sm opacity-60">{view === "open" ? "ไม่มีงานค้าง" : "ยังไม่มีข้อมูล"}</li>}
+      <div className="grid gap-2.5 sm:grid-cols-2">
+        {rows.length === 0 && <p className="muted py-6 text-center sm:col-span-2">{view === "open" ? "ไม่มีงานค้าง" : "ยังไม่มีข้อมูล"}</p>}
         {rows.map((r) => {
           const open = OPEN_STATUSES.includes(r.status);
           return (
-            <li key={r.id}>
-              <Link href={`/service/${r.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-surface-2">
-                <span className={`mt-0.5 rounded px-1.5 py-0.5 text-xs font-semibold ${PRIORITY_TONE[r.priority] ?? ""}`}>{r.priority}</span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-baseline gap-x-2">
-                    <span className="font-medium">{r.req_no}</span>
-                    <span className="text-sm opacity-70">{r.requester}</span>
-                    {r.system && <span className="text-xs opacity-50">· {r.system}</span>}
-                    {r.asset_tag && <span className="font-mono text-xs opacity-60">· {r.asset_tag}</span>}
-                  </div>
-                  {r.detail && <p className="truncate text-sm opacity-80">{r.detail}</p>}
-                  <p className="text-xs opacity-50">
-                    {thDate(r.req_date)} · {r.type}
-                    {open ? ` · ค้าง ${daysBetween(r.req_date, today)} วัน` : r.hours != null ? ` · ${r.hours} ชม.` : ""}
-                  </p>
-                </div>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${STATUS_TONE[r.status] ?? ""}`}>{r.status}</span>
-              </Link>
-            </li>
+            <Link key={r.id} href={`/service/${r.id}`} className="scard">
+              <div className="row" style={{ gap: 8 }}>
+                <span className={`prio ${r.priority.toLowerCase()}`}>{r.priority}</span>
+                <span className="mono small" style={{ fontWeight: 600, color: "var(--accentInk)" }}>{r.req_no}</span>
+                {r.type === "Incident" && <span className="kind-inc">Incident</span>}
+                <span className="flex-1" />
+                <span className={`pill sm ${SERVICE_TONE[r.status] ?? "t-grey"}`}>{r.status}</span>
+              </div>
+              <div className="desc">{r.detail || <span className="muted">{r.type}</span>}</div>
+              <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
+                <span className="small ink2 row" style={{ gap: 4 }}><User className="size-3.5" />{[r.requester, r.dept].filter(Boolean).join(" · ")}</span>
+                {r.system && <span className="tagchip" style={{ fontFamily: "inherit" }}>{r.system}</span>}
+                {r.asset_tag && <span className="tagchip"><Tag className="size-3" />{r.asset_tag}</span>}
+                <span className="flex-1" />
+                <span className="days"><Clock3 className="size-3.5" />
+                  {open ? `${daysBetween(r.req_date, today)} วัน` : r.hours != null ? `${r.hours} ชม.` : shortThaiDate(r.req_date)}
+                </span>
+              </div>
+            </Link>
           );
         })}
-      </ul>
+      </div>
     </main>
   );
 }

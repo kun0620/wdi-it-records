@@ -49,3 +49,8 @@ export const CHECK_SYSTEM: Record<string, string> = {
   cctv: "Dahua NVR",
   ups: "Other",
 };
+
+// Design pill tone per request status.
+export const SERVICE_TONE: Record<string, string> = {
+  Open: "t-info", "In Progress": "t-warn", "Waiting HQ/Vendor": "t-orange", Closed: "t-ok", Cancelled: "t-grey",
+};

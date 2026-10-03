@@ -70,7 +70,12 @@ function Bars({ weeks }: { weeks: Dash["trend"] }) {
         })}
       </div>
       <div className="xl">
-        {weeks.map((w, i) => <span key={w.week_start} className={i === weeks.length - 1 ? "cur" : ""}>{shortThaiDate(w.week_start)}</span>)}
+        {weeks.map((w, i) => (
+          <span key={w.week_start} className={`min-w-0 ${i === weeks.length - 1 ? "cur" : ""}`}>
+            <span className="hidden sm:inline">{shortThaiDate(w.week_start)}</span>
+            <span className="sm:hidden">{Number(w.week_start.slice(8))}/{Number(w.week_start.slice(5, 7))}</span>
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -125,7 +130,7 @@ export default async function Dashboard() {
     supabase.rpc("dashboard", { report_date: today }),
     assetHealth(supabase, today),
   ]);
-  if (error || !data) return <main className="mx-auto max-w-3xl px-4 py-8 text-sm text-red-600">โหลดภาพรวมไม่ได้: {error?.message}</main>;
+  if (error || !data) return <main className="mx-auto max-w-3xl px-4 py-8 text-sm text-[var(--bad-fg)]">โหลดภาพรวมไม่ได้: {error?.message}</main>;
   const d = data as Dash;
   const { service: s, backlog: bl, checks: ck, maintenance: mt } = d;
   const p1 = bl.by_priority.find((x) => x.priority === "P1")?.open ?? 0;

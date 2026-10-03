@@ -7,14 +7,14 @@ type FileItem = { path: string; name: string; size: number; updated: string | nu
 const card = "card p-4 sm:p-5";
 
 function FileList({ files, empty }: { files: FileItem[]; empty: string }) {
-  if (files.length === 0) return <p className="text-sm opacity-60">{empty}</p>;
+  if (files.length === 0) return <p className="text-sm muted">{empty}</p>;
   return (
     <ul className="divide-y divide-[var(--line)]">
       {files.map((f) => (
         <li key={f.path} className="flex items-center justify-between gap-3 py-2 text-sm">
           <span className="min-w-0 truncate">{f.name}</span>
           <span className="flex shrink-0 items-center gap-3">
-            <span className="text-xs opacity-50">
+            <span className="text-xs muted">
               {(f.size / 1024).toFixed(0)} KB
               {f.updated && ` · ${new Date(f.updated).toLocaleString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}`}
             </span>
@@ -52,20 +52,20 @@ export default async function ExportsPage() {
 
   return (
     <main className="mx-auto w-full max-w-5xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
-      <h1 className="text-xl font-bold sm:text-2xl">ไฟล์ Export <span className="text-sm font-normal opacity-60">.xlsx</span></h1>
-      <p className="text-sm opacity-70">
+      <h1 className="text-xl font-bold sm:text-2xl">ไฟล์ Export <span className="text-sm font-normal muted">.xlsx</span></h1>
+      <p className="text-sm ink2">
         ไฟล์ Excel หน้าตาเหมือนชีตเดิม: Summary · Service_Log · Daily_Check · Weekly_Check · Maintenance · Handover · Doc_List · Assets · Audit_Log
       </p>
       {role === "editor" && <GenerateButton />}
 
       <section className={card}>
         <h2 className="mb-1 font-semibold">รายเดือน</h2>
-        <p className="mb-2 text-xs opacity-60">อัปเดตทุกครั้งที่สร้างไฟล์ในเดือนนั้น — หลังสิ้นเดือนคือภาพ ณ สิ้นเดือน</p>
+        <p className="mb-2 text-xs muted">อัปเดตทุกครั้งที่สร้างไฟล์ในเดือนนั้น — หลังสิ้นเดือนคือภาพ ณ สิ้นเดือน</p>
         <FileList files={monthly} empty="ยังไม่มีไฟล์รายเดือน" />
       </section>
 
       <section className={card}>
-        <h2 className="mb-2 font-semibold">รายวัน <span className="text-xs font-normal opacity-60">(3 เดือนล่าสุด)</span></h2>
+        <h2 className="mb-2 font-semibold">รายวัน <span className="text-xs font-normal muted">(3 เดือนล่าสุด)</span></h2>
         <FileList files={daily} empty="ยังไม่มีไฟล์รายวัน" />
       </section>
     </main>

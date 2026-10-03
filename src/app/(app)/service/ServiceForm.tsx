@@ -20,7 +20,7 @@ const input = "input";
 function Field({ label, req, full, children }: { label: string; req?: boolean; full?: boolean; children: React.ReactNode }) {
   return (
     <label className={`block space-y-1 ${full ? "sm:col-span-2" : ""}`}>
-      <span className="text-sm">{label}{req && <span className="text-red-600"> *</span>}</span>
+      <span className="flabel">{label}{req && <span className="req" aria-hidden="true">*</span>}</span>
       {children}
     </label>
   );
@@ -54,7 +54,7 @@ export default function ServiceForm({ rec, lists, assets, canEdit, today, now }:
   };
 
   return (
-    <form ref={form} action={action} className="space-y-4">
+    <form ref={form} action={action} className="card flex flex-col gap-4 !p-4 sm:!p-5">
       <input type="hidden" name="id" value={rec.id ?? ""} />
       <input type="hidden" name="updated_at" value={rec.updated_at ?? ""} />
 
@@ -111,20 +111,20 @@ export default function ServiceForm({ rec, lists, assets, canEdit, today, now }:
         )}
       </div>
 
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state.error && <p className="ierr">{state.error}</p>}
 
       <div className="flex flex-wrap gap-3">
         {canEdit && (
-          <button type="submit" disabled={pending} className="btn btn-primary px-5 py-2.5">
+          <button type="submit" disabled={pending} className="btn btn-primary btn-lg">
             {pending ? "กำลังบันทึก…" : "บันทึก"}
           </button>
         )}
         {canEdit && !isNew && rec.status !== "Closed" && (
-          <button type="button" onClick={() => markClosed(true)} className="btn btn-secondary px-4 py-2.5">
+          <button type="button" onClick={() => markClosed(true)} className="btn btn-secondary btn-lg">
             ✓ ปิดงานตอนนี้
           </button>
         )}
-        <Link href="/service" className="px-2 py-2.5 text-sm opacity-70">ยกเลิก</Link>
+        <Link href="/service" className="btn btn-ghost btn-lg">ยกเลิก</Link>
       </div>
     </form>
   );

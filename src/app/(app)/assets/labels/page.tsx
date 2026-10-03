@@ -44,14 +44,14 @@ export default async function LabelsPage(props: PageProps<"/assets/labels">) {
       `}</style>
 
       <div className="no-print space-y-3">
-        <h1 className="text-lg font-semibold">พิมพ์ป้าย QR <span className="text-sm font-normal opacity-60">{labels.length} ป้าย</span></h1>
+        <h1 className="text-lg font-semibold">พิมพ์ป้าย QR <span className="text-sm font-normal muted">{labels.length} ป้าย</span></h1>
         {isLocalUrl(base) && (
           <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
             QR ตอนนี้ชี้ไปที่ <b>{base}</b> ซึ่งมือถือนอกเครื่องนี้เปิดไม่ได้ — พิมพ์จริงหลัง deploy ขึ้น Vercel (หรือตั้งค่า NEXT_PUBLIC_APP_URL)
           </p>
         )}
         {ids.length ? (
-          <p className="text-sm opacity-70">พิมพ์เฉพาะที่เลือก {ids.length} ชิ้น</p>
+          <p className="text-sm ink2">พิมพ์เฉพาะที่เลือก {ids.length} ชิ้น</p>
         ) : (
           <form className="flex flex-wrap gap-2">
             <select name="type" defaultValue={type} className={ctl}>
@@ -68,7 +68,7 @@ export default async function LabelsPage(props: PageProps<"/assets/labels">) {
             <button className={ctl}>แสดง</button>
           </form>
         )}
-        <p className="text-xs opacity-60">กระดาษสติกเกอร์ A4 แบบ 24 ดวง (3 × 8, ดวงละ 70 × 37 มม.) · ตอนพิมพ์ตั้ง Margins = None และ Scale = 100%</p>
+        <p className="text-xs muted">กระดาษสติกเกอร์ A4 แบบ 24 ดวง (3 × 8, ดวงละ 70 × 37 มม.) · ตอนพิมพ์ตั้ง Margins = None และ Scale = 100%</p>
         <PrintButton />
       </div>
 
@@ -81,7 +81,7 @@ export default async function LabelsPage(props: PageProps<"/assets/labels">) {
               <div className="font-mono text-[11pt] font-bold">{l.asset_tag}</div>
               <div className="truncate text-[7.5pt]">{[l.manufacturer, l.model].filter(Boolean).join(" ") || l.name || l.category}</div>
               {l.serial && <div className="truncate text-[7pt]">S/N {l.serial}</div>}
-              <div className="mt-1 text-[6.5pt] opacity-70">WDI IT · ห้ามแกะ</div>
+              <div className="mt-1 text-[6.5pt] ink2">WDI IT · ห้ามแกะ</div>
             </div>
           </div>
         ))}

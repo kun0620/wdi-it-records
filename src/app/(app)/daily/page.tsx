@@ -1,26 +1,10 @@
 import Link from "next/link";
 import { getSession } from "@/lib/supabase/server";
-import { isISODate, thDate, todayISO } from "@/lib/dates";
-import { CHECKS, type DailyRow } from "./checks";
+import { isISODate, shortThaiDate, todayISO } from "@/lib/dates";
+import type { DailyRow } from "./checks";
 import DailyForm from "./DailyForm";
-import { CHECK_SYSTEM } from "../service/shared";
 
-// NG found -> open a prefilled Incident in Service Log (the v1 rule: "ถ้า NG ให้เปิด Service_Log ประเภท Incident").
-function IncidentLink({ row }: { row: DailyRow }) {
-  const ng = CHECKS.filter((c) => row[c.k] === "NG");
-  const params = new URLSearchParams({
-    type: "Incident",
-    system: CHECK_SYSTEM[ng[0].k],
-    priority: "P2",
-    detail: `Daily Check ${thDate(row.check_date)} NG: ${ng.map((c) => c.th).join(", ")}${row.remark ? ` — ${row.remark}` : ""}`,
-  });
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-900 dark:bg-red-950 dark:text-red-100">
-      <span>พบ NG {ng.length} รายการ: {ng.map((c) => c.th).join(", ")}</span>
-      <Link href={`/service/new?${params}`} className="font-medium underline underline-offset-2">เปิดงาน Incident →</Link>
-    </div>
-  );
-}
+const DOW = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
 
 export default async function DailyPage(props: PageProps<"/daily">) {
   const sp = await props.searchParams;
@@ -38,15 +22,11 @@ export default async function DailyPage(props: PageProps<"/daily">) {
     const { data } = await supabase.from("daily_check").select("*").eq("check_date", date).maybeSingle();
     existing = (data as DailyRow | null) ?? null;
   }
+  const full = rows.filter((r) => r.complete === 1 && !r.ng_count).length;
+  const ng = rows.filter((r) => r.ng_count > 0).length;
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-6 px-3 py-4 sm:px-6 sm:py-6">
-      <h1 className="text-xl font-bold sm:text-2xl">เช็คประจำวัน <span className="text-sm font-normal opacity-60">Daily Check</span></h1>
-
-      {existing && existing.ng_count > 0 && role === "editor" && (
-        <IncidentLink row={existing} />
-      )}
-
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-3 py-3 sm:gap-4 sm:px-5 sm:py-5 lg:px-7">
       <DailyForm
         key={date}
         date={date}
@@ -57,35 +37,22 @@ export default async function DailyPage(props: PageProps<"/daily">) {
         canEdit={role === "editor"}
       />
 
-      <section className="card p-4 sm:p-5">
-        <h2 className="mb-3 font-semibold">ย้อนหลัง 14 วันที่บันทึก</h2>
-        {rows.length === 0 ? (
-          <p className="text-sm opacity-60">ยังไม่มีข้อมูล</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-xs opacity-60">
-                <tr>
-                  <th className="py-1 pr-2">วันที่</th>
-                  {CHECKS.map((c) => <th key={c.k} className="hidden px-1 sm:table-cell">{c.th.split(" ")[0]}</th>)}
-                  <th className="px-1">ครบ</th><th className="px-1">NG</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.check_date} className="border-t border-[var(--line)]">
-                    <td className="py-1.5 pr-2">
-                      <Link href={`/daily?date=${r.check_date}`} className="underline-offset-2 hover:underline">{thDate(r.check_date)}</Link>
-                    </td>
-                    {CHECKS.map((c) => (
-                      <td key={c.k} className={`hidden px-1 sm:table-cell ${r[c.k] === "NG" ? "font-semibold text-red-600" : ""}`}>{r[c.k] ?? "–"}</td>
-                    ))}
-                    <td className="px-1">{r.complete === 1 ? <span className="text-green-600">✓</span> : <span className="text-amber-600">ไม่ครบ</span>}</td>
-                    <td className="px-1">{r.ng_count || ""}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <section className="card !p-4">
+        <div className="card-h">
+          <h2 className="h3">14 วันล่าสุด</h2>
+          <span className="small muted">ครบ {full} · ไม่ครบ {rows.length - full - ng} · NG {ng}</span>
+        </div>
+        {rows.length === 0 ? <p className="muted">ยังไม่มีข้อมูล</p> : (
+          <div>
+            {rows.map((r) => (
+              <Link key={r.check_date} href={`/daily?date=${r.check_date}`} className="li" style={{ padding: "10px 0" }}>
+                <div style={{ width: 44 }} className="small muted">{DOW[new Date(`${r.check_date}T00:00:00Z`).getUTCDay()]}</div>
+                <div className="flex-1" style={{ fontWeight: 600 }}>{shortThaiDate(r.check_date)}</div>
+                {r.ng_count > 0
+                  ? <span className="pill sm t-bad">NG {r.ng_count} ข้อ</span>
+                  : r.complete === 1 ? <span className="pill sm t-ok">✓ ครบ 7/7</span> : <span className="pill sm t-warn">ไม่ครบ</span>}
+              </Link>
+            ))}
           </div>
         )}
       </section>
