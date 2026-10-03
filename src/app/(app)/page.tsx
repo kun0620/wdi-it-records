@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getSession } from "@/lib/supabase/server";
 import { daysBetween, thDate, todayISO } from "@/lib/dates";
 import { PRIORITY_TONE, STATUS_TONE } from "./service/shared";
-import { statusOf } from "./assets/shared";
+import { ASSET_STATUSES } from "./assets/shared";
+import { assetHealth, WARRANTY_DAYS } from "@/lib/asset-health";
 
 type Period = { received: number; incidents: number; p1: number; closed: number; escalated: number; avg_hours: number | null };
 type Dash = {
@@ -107,13 +108,15 @@ function Heat({ heat, weekStart, today }: { heat: Dash["heat"]; weekStart: strin
 export default async function Dashboard() {
   const { supabase } = await getSession();
   const today = todayISO();
-  const { data, error } = await supabase.rpc("dashboard", { report_date: today });
+  const [{ data, error }, ah] = await Promise.all([
+    supabase.rpc("dashboard", { report_date: today }),
+    assetHealth(supabase, today),
+  ]);
   if (error || !data) return <main className="mx-auto max-w-3xl px-4 py-8 text-sm text-red-600">โหลดภาพรวมไม่ได้: {error?.message}</main>;
   const d = data as Dash;
   const { service: s, backlog: bl, checks: ck, maintenance: mt } = d;
   const p1 = bl.by_priority.find((x) => x.priority === "P1")?.open ?? 0;
   const pct = ck.working_days > 0 ? Math.min(1, ck.days_complete / ck.working_days) : null;
-  const totalAssets = Object.values(d.assets).reduce((a, b) => a + b, 0);
 
   return (
     <main className="mx-auto w-full max-w-5xl space-y-4 px-4 py-6">
@@ -182,10 +185,69 @@ export default async function Dashboard() {
             </tbody>
           </table>
           <p className="mt-2 text-xs opacity-70">รอเซ็นรับรองรายไตรมาส {mt.pending_signoff} · ทดสอบไม่ผ่านเดือนนี้ {mt.failed_month}</p>
-          <h2 className="mb-1 mt-4 font-medium">ทรัพย์สิน IT <span className="text-xs font-normal opacity-60">รวม {totalAssets}</span></h2>
-          <p className="text-sm opacity-80">{Object.entries(d.assets).map(([k, v]) => `${statusOf(k)?.th ?? k} ${v}`).join(" · ")}</p>
         </section>
       </div>
+
+      <section className={card}>
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-medium">ทรัพย์สิน IT <span className="text-xs font-normal opacity-60">รวม {ah.total}</span></h2>
+          <Link href="/assets" className="text-xs opacity-70 hover:underline">ดูทั้งหมด →</Link>
+        </div>
+        <div className="mb-4 flex flex-wrap gap-2">
+          {ASSET_STATUSES.filter((s) => ah.byStatus[s.v]).map((s) => (
+            <Link key={s.v} href={`/assets?status=${encodeURIComponent(s.v)}`} className={`rounded-full px-3 py-1 text-sm ${s.tone}`}>
+              {s.th} <b className="tabular-nums">{ah.byStatus[s.v]}</b>
+            </Link>
+          ))}
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <div>
+            <h3 className="mb-1 text-sm font-medium">ประกันหมด / ใกล้หมด <span className="text-xs font-normal opacity-60">(≤ {WARRANTY_DAYS} วัน)</span></h3>
+            {ah.warranty.length === 0 ? (
+              <p className="text-sm opacity-60">ไม่มี{ah.total ? " — กรอกวันหมดประกันในหน้าทรัพย์สินเพื่อให้ระบบเตือน" : ""}</p>
+            ) : (
+              <ul className="space-y-1 text-sm">
+                {ah.warranty.slice(0, 6).map((w) => (
+                  <li key={w.id}>
+                    <Link href={`/assets/${w.id}`} className="flex gap-2 hover:underline">
+                      <span className="font-mono">{w.asset_tag}</span>
+                      <span className="min-w-0 flex-1 truncate opacity-70">{w.label}</span>
+                      <span className={`shrink-0 text-xs ${w.days < 0 ? "font-semibold text-red-600" : "text-amber-700 dark:text-amber-400"}`}>
+                        {w.days < 0 ? `หมดแล้ว ${-w.days} วัน` : `อีก ${w.days} วัน`}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+                {ah.warranty.length > 6 && <li><Link href="/assets?warranty=soon" className="text-xs opacity-70 hover:underline">และอีก {ah.warranty.length - 6} รายการ →</Link></li>}
+              </ul>
+            )}
+          </div>
+          <div>
+            <h3 className="mb-1 text-sm font-medium">ยังไม่มี Serial No.</h3>
+            <p className="text-2xl font-semibold tabular-nums">{ah.missingSerial.length}
+              <span className="ml-1 text-xs font-normal opacity-60">จากเครื่องที่ใช้งาน/สต็อก/ซ่อม</span></p>
+            {ah.missingSerial.length > 0 && (
+              <Link href="/assets?missing=serial" className="text-xs opacity-70 hover:underline">ดูรายการแล้วเติม S/N →</Link>
+            )}
+          </div>
+          <div>
+            <h3 className="mb-1 text-sm font-medium">แจ้งปัญหาบ่อย <span className="text-xs font-normal opacity-60">(12 เดือน)</span></h3>
+            {ah.topRepairs.length === 0 ? <p className="text-sm opacity-60">ยังไม่มีคำขอที่ผูกกับเครื่อง</p> : (
+              <ul className="space-y-1 text-sm">
+                {ah.topRepairs.map((r) => (
+                  <li key={r.id}>
+                    <Link href={`/assets/${r.id}`} className="flex gap-2 hover:underline">
+                      <span className="font-mono">{r.asset_tag}</span>
+                      <span className="min-w-0 flex-1 truncate opacity-70">{r.user_name ?? r.label}</span>
+                      <span className="shrink-0 tabular-nums">{r.count} ครั้ง</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </section>
 
       <section className={card}>
         <h2 className="mb-2 font-medium">คำขอตามประเภท</h2>

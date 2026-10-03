@@ -1,5 +1,6 @@
 import ExcelJS from "exceljs";
 import type { createClient } from "@/lib/supabase/server";
+import { assetHealth, WARRANTY_DAYS, type AssetHealth } from "@/lib/asset-health";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 type Row = Record<string, unknown>;
@@ -10,6 +11,10 @@ type Col = { h: string; k: string; w: number; t?: "date" | "time" | "pct" | "num
 type SheetDef = { name: string; table: string; order: string; title: string; note: string; cols: Col[] };
 
 const NAVY = "FF1F4E78";
+const STATUS_TH: [string, string][] = [
+  ["In Use", "ใช้งาน"], ["In Stock", "สต็อก"], ["Repair", "ซ่อม"], ["Waiting", "รอของ"],
+  ["Retired", "เลิกใช้"], ["Lost", "สูญหาย"], ["Planned", "แผนจัดซื้อ"],
+];
 
 const SHEETS: SheetDef[] = [
   {
@@ -224,7 +229,7 @@ function addSheet(wb: ExcelJS.Workbook, def: SheetDef, rows: Row[]) {
   ws.autoFilter = { from: { row: 3, column: 1 }, to: { row: 3 + rows.length, column: def.cols.length } };
 }
 
-function addSummary(wb: ExcelJS.Workbook, asOf: string, dash: Record<string, any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
+function addSummary(wb: ExcelJS.Workbook, asOf: string, dash: Record<string, any>, ah: AssetHealth) { // eslint-disable-line @typescript-eslint/no-explicit-any
   const ws = wb.addWorksheet("Summary");
   ws.columns = [{ width: 46 }, { width: 16 }, { width: 16 }, { width: 14 }];
   const s = dash.service, bl = dash.backlog, ck = dash.checks;
@@ -258,6 +263,15 @@ function addSummary(wb: ExcelJS.Workbook, asOf: string, dash: Record<string, any
     ...dash.maintenance.types.map((m: any) => [m.type, m.last_pass ?? "-", m.next_due ?? "-", m.status]), // eslint-disable-line @typescript-eslint/no-explicit-any
     ["รอเซ็นรับรองรายไตรมาส", dash.maintenance.pending_signoff],
     ["ทดสอบไม่ผ่านเดือนนี้", dash.maintenance.failed_month],
+    [],
+    ["5. IT Assets", "จำนวน"],
+    ["ทรัพย์สินทั้งหมด", ah.total],
+    ...STATUS_TH.filter(([v]) => ah.byStatus[v]).map(([v, th]) => [`  ${th} (${v})`, ah.byStatus[v]]),
+    [`ประกันหมด / ใกล้หมด (≤ ${WARRANTY_DAYS} วัน)`, ah.warranty.length],
+    ...ah.warranty.slice(0, 10).map((w) => [`  ${w.asset_tag} ${w.label}`, w.warranty_end, w.days < 0 ? "หมดแล้ว" : `อีก ${w.days} วัน`]),
+    ["ยังไม่มี Serial No. (ใช้งาน/สต็อก/ซ่อม)", ah.missingSerial.length],
+    ["แจ้งปัญหาบ่อย (12 เดือน)", "ครั้ง"],
+    ...(ah.topRepairs.length ? ah.topRepairs.map((r) => [`  ${r.asset_tag} ${r.user_name ?? r.label}`, r.count]) : [["  -"]]),
   ];
   lines.forEach((l) => ws.addRow(l));
   ws.getCell("A1").font = { bold: true, size: 14, color: { argb: NAVY } };
@@ -278,9 +292,12 @@ export async function buildWorkbook(supabase: Supabase, asOf: string): Promise<B
   wb.creator = "WDI IT Records";
   wb.created = new Date();
 
-  const { data: dash, error } = await supabase.rpc("dashboard", { report_date: asOf });
+  const [{ data: dash, error }, ah] = await Promise.all([
+    supabase.rpc("dashboard", { report_date: asOf }),
+    assetHealth(supabase, asOf),
+  ]);
   if (error) throw new Error(`dashboard: ${error.message}`);
-  addSummary(wb, asOf, dash);
+  addSummary(wb, asOf, dash, ah);
 
   for (const def of SHEETS) addSheet(wb, def, await fetchAll(supabase, def.table, def.order));
   return Buffer.from(await wb.xlsx.writeBuffer());

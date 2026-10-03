@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/supabase/server";
+import { todayISO } from "@/lib/dates";
+import { ACTIVE, WARRANTY_DAYS } from "@/lib/asset-health";
 import { ASSET_STATUSES, PREFIXES, statusOf, type AssetRow } from "./shared";
 
 const ctl = "rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20";
@@ -10,11 +12,18 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
   const status = str("status");
   const type = str("type");
   const q = str("q");
+  // dashboard shortcuts: ?missing=serial, ?warranty=soon (both limited to machines we actually have)
+  const missing = str("missing") === "serial";
+  const warranty = str("warranty") === "soon";
 
   const { supabase, role } = await getSession();
   let query = supabase.from("assets").select("*").order("asset_tag", { nullsFirst: false }).limit(1000);
   if (status) query = query.eq("status", status);
+  else if (missing || warranty) query = query.in("status", ACTIVE);
   else query = query.not("status", "in", "(Retired,Planned)");      // default: things we actually have
+  if (missing) query = query.or("serial.is.null,serial.eq.");
+  if (warranty) query = query.lte("warranty_end", new Date(Date.parse(todayISO()) + WARRANTY_DAYS * 864e5).toISOString().slice(0, 10))
+    .order("warranty_end");
   if (type) query = query.like("asset_tag", `WDI-${type}-%`);
   if (q) {
     const like = `%${q.replace(/[%_,()]/g, " ")}%`;
@@ -83,6 +92,14 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
       </details>
 
       {error && <p className="text-sm text-red-600">{error.message}</p>}
+      {(missing || warranty) && (
+        <p className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-900 dark:bg-amber-950 dark:text-amber-100">
+            {missing ? "เฉพาะที่ยังไม่มี Serial No." : `ประกันหมด / ใกล้หมด (≤ ${WARRANTY_DAYS} วัน)`}
+          </span>
+          <Link href="/assets" className="text-xs opacity-70 hover:underline">ล้างตัวกรอง ✕</Link>
+        </p>
+      )}
       <p className="text-xs opacity-60">{rows.length} รายการ</p>
 
       <ul className="divide-y divide-black/5 rounded-xl border border-black/10 dark:divide-white/10 dark:border-white/15">
