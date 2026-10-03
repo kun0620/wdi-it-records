@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 import AssetRowLink from "./AssetRowLink";
+import ScrollTable from "./ScrollTable";
 import AssetIcon from "./AssetIcon";
 import { getSession } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/dates";
@@ -136,7 +137,7 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
       )}
 
       <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
+        <ScrollTable label={`${rows.length} รายการ · ปัด/ลากตาราง หรือกด ◀ ▶ เพื่อดูคอลัมน์อื่น`}>
           <table className="w-full min-w-[920px] border-separate border-spacing-0 text-sm">
             <thead>
               <tr className="text-left text-xs text-muted">
@@ -183,9 +184,8 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
               })}
             </tbody>
           </table>
-        </div>
+        </ScrollTable>
       </div>
-      <p className="text-xs text-muted sm:hidden">เลื่อนตารางไปทางขวาเพื่อดูคอลัมน์อื่น · แตะแถวเพื่อเปิด</p>
     </main>
   );
 }
