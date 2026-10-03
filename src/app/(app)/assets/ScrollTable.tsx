@@ -36,9 +36,9 @@ export default function ScrollTable({ label, children }: { label: string; childr
         <span className="text-xs text-muted">{label}</span>
         <div className="flex gap-1">
           <button type="button" onClick={() => step(-1)} disabled={!edge.left} aria-label="เลื่อนซ้าย"
-            className="btn size-8 p-0 disabled:opacity-30"><ChevronLeft className="size-4" /></button>
+            className="btn btn-secondary size-8 p-0 disabled:opacity-30"><ChevronLeft className="size-4" /></button>
           <button type="button" onClick={() => step(1)} disabled={!edge.right} aria-label="เลื่อนขวา"
-            className="btn size-8 p-0 disabled:opacity-30"><ChevronRight className="size-4" /></button>
+            className="btn btn-secondary size-8 p-0 disabled:opacity-30"><ChevronRight className="size-4" /></button>
         </div>
       </div>
       <div className="relative">

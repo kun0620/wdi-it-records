@@ -37,13 +37,13 @@ export default async function ServiceListPage(props: PageProps<"/service">) {
       )}
 
       <form className="flex flex-wrap gap-2">
-        <select name="view" defaultValue={view} className="field w-auto text-sm">
+        <select name="view" defaultValue={view} className="input w-auto text-sm">
           <option value="open">เฉพาะงานค้าง</option>
           <option value="all">ทั้งหมด</option>
         </select>
         <input name="q" defaultValue={q} placeholder="ค้นหา เลขที่ / ชื่อ / ระบบ / รายละเอียด"
-          className="min-w-48 flex-1 field w-auto text-sm" />
-        <button className="btn px-3">ค้นหา</button>
+          className="min-w-48 flex-1 input w-auto text-sm" />
+        <button className="btn btn-secondary px-3">ค้นหา</button>
       </form>
 
       {error && <p className="text-sm text-red-600">{error.message}</p>}

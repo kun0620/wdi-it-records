@@ -8,7 +8,7 @@ export type PickAsset = { id: number; asset_tag: string; label: string; status: 
 
 type Props = { assets: PickAsset[]; initialAsset: number | null; users: string[]; positions: string[]; depts: string[]; conditions: string[]; today: string };
 
-const input = "field";
+const input = "input";
 
 export default function HandoverForm({ assets, initialAsset, users, positions, depts, conditions, today }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveHandover, {});

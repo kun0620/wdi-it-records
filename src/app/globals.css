@@ -1,118 +1,73 @@
 @import "tailwindcss";
+@import "./design.css";
 
-/* ------------------------------------------------------------------ design tokens
-   Brand = the navy of the original "IT Asset & Records" workbook header (#1F4E78). */
+/* Older names used across the app, mapped onto the design-system tokens in design.css. */
 :root {
-  --background: #f3f5f9;      /* page */
-  --foreground: #0f172a;      /* primary ink */
-  --muted: #64748b;           /* secondary ink */
-  --surface: #ffffff;         /* cards */
-  --surface-2: #f8fafc;       /* insets, table heads */
-  --line: rgb(15 23 42 / 0.08);
-  --line-strong: rgb(15 23 42 / 0.16);
-  --brand: #1f4e78;
-  --brand-strong: #163a5a;
-  --brand-soft: #e6eef6;
-  --brand-ink: #ffffff;
-  --sidebar: #0f2a44;
-  --sidebar-ink: #c9d6e3;
-  --sidebar-active: rgb(255 255 255 / 0.1);
-  --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px rgb(15 23 42 / 0.05);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b1220;
-    --foreground: #e5ebf3;
-    --muted: #94a3b8;
-    --surface: #121b2c;
-    --surface-2: #0f1727;
-    --line: rgb(255 255 255 / 0.08);
-    --line-strong: rgb(255 255 255 / 0.16);
-    --brand: #4f8cc9;
-    --brand-strong: #6aa2da;
-    --brand-soft: rgb(79 140 201 / 0.15);
-    --brand-ink: #0b1220;
-    --sidebar: #08111f;
-    --sidebar-ink: #9fb3c8;
-    --sidebar-active: rgb(255 255 255 / 0.08);
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
-  }
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --muted: var(--ink3);
+  --surface: var(--card);
+  --surface-2: var(--card2);
+  --line-strong: var(--fieldLine);
+  --brand-strong: var(--accentHover);
+  --brand-soft: var(--accentSoft);
+  --brand-ink: #fff;
+  --sidebar: var(--side);
+  --sidebar-ink: var(--sideMuted);
+  --sidebar-active: var(--side2);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --color-muted: var(--ink3);
+  --color-ink2: var(--ink2);
+  --color-surface: var(--card);
+  --color-surface-2: var(--card2);
   --color-line: var(--line);
-  --color-brand: var(--brand);
-  --color-brand-strong: var(--brand-strong);
-  --color-brand-soft: var(--brand-soft);
-  --color-brand-ink: var(--brand-ink);
-  --color-sidebar: var(--sidebar);
+  --color-brand: var(--accentInk);
+  --color-brand-soft: var(--accentSoft);
+  --color-accent: var(--accent);
+  --color-sidebar: var(--side);
   --font-sans: var(--font-thai), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-plex), ui-monospace, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--ink);
   font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+@layer base {
+  a { color: inherit; text-decoration: none; }
+  .mono { font-family: var(--font-mono); }
 }
 
-/* ------------------------------------------------------------------ shared building blocks */
-@utility card {
-  background-color: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  box-shadow: var(--shadow);
-}
-@utility field {
-  width: 100%;
-  border-radius: 0.625rem;
-  border: 1px solid var(--line-strong);
-  background-color: var(--surface);
-  padding: 0.55rem 0.75rem;
-  outline: none;
-  &:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
-  &:read-only, &:disabled { background-color: var(--surface-2); color: var(--muted); }
-}
-@utility btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  border-radius: 0.625rem;
-  border: 1px solid var(--line-strong);
-  background-color: var(--surface);
-  padding: 0.5rem 0.9rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
-  &:hover { background-color: var(--surface-2); }
-  &:disabled { opacity: 0.5; }
-}
-@utility btn-primary {
-  border-color: var(--brand);
-  background-color: var(--brand);
-  color: var(--brand-ink);
-  &:hover { background-color: var(--brand-strong); }
+@layer components {
+  /* the design's input, used on <input>/<select>/<textarea> */
+  .input:read-only, .input:disabled { background: var(--card2); color: var(--ink2); border-style: dashed; }
+  select.input { background-image: linear-gradient(45deg, transparent 50%, var(--ink3) 50%), linear-gradient(135deg, var(--ink3) 50%, transparent 50%);
+    background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 32px; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn-primary:hover { background: var(--accentHover); }
+  .btn-secondary:hover { background: var(--card2); }
+  .chip:hover { border-color: var(--fieldLine); }
+  .tbl tbody tr:hover td { background: var(--hover); }
+  /* segmented control items may be links, not only buttons */
+  .seg a { height: 32px; padding: 0 12px; border-radius: 8px; color: var(--ink2); font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .seg a.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px var(--line); }
+  .tbox { overflow: hidden; }
 }
 
-/* chart roles (dataviz reference palette) */
+/* chart roles (dataviz palette tuned to the design) */
 :root {
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
-  --status-good: #0ca30c;
-  --status-warning: #fab219;
-  --status-critical: #d03b3b;
-  --cell-empty: #e5e8ee;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --cell-empty: #273246;
-  }
+  --series-1: var(--barA);
+  --series-2: var(--barB);
+  --status-good: var(--ok);
+  --status-warning: var(--warn);
+  --status-critical: var(--bad);
+  --cell-empty: var(--empty);
 }

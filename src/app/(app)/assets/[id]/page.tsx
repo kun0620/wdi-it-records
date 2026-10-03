@@ -95,7 +95,7 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
         <div className="mb-2 flex items-center justify-between gap-3">
           <h2 className="font-semibold">ประวัติแจ้งปัญหา / ซ่อม <span className="text-xs font-normal opacity-60">{services?.length ?? 0} ครั้ง</span></h2>
           {role === "editor" && (
-            <Link href={`/service/new?asset=${rec.id}`} className="btn px-3 py-1.5">
+            <Link href={`/service/new?asset=${rec.id}`} className="btn btn-secondary px-3 py-1.5">
               + แจ้งปัญหาเครื่องนี้
             </Link>
           )}

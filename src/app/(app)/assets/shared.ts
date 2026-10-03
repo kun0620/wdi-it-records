@@ -74,3 +74,8 @@ export function shortCategory(category: string | null | undefined): string | nul
   if (!category) return null;
   return category.includes(" - ") ? category.split(" - ").slice(1).join(" - ") : category;
 }
+
+// Status pill tone (design classes t-ok / t-info / ...).
+export const STATUS_TONE: Record<string, string> = {
+  "In Use": "t-ok", "In Stock": "t-info", Repair: "t-warn", Waiting: "t-orange", Retired: "t-grey", Lost: "t-bad", Planned: "t-violet",
+};

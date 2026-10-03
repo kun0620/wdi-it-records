@@ -15,7 +15,7 @@ type Props = {
   now: string;
 };
 
-const input = "field";
+const input = "input";
 
 function Field({ label, req, full, children }: { label: string; req?: boolean; full?: boolean; children: React.ReactNode }) {
   return (
@@ -120,7 +120,7 @@ export default function ServiceForm({ rec, lists, assets, canEdit, today, now }:
           </button>
         )}
         {canEdit && !isNew && rec.status !== "Closed" && (
-          <button type="button" onClick={() => markClosed(true)} className="btn px-4 py-2.5">
+          <button type="button" onClick={() => markClosed(true)} className="btn btn-secondary px-4 py-2.5">
             ✓ ปิดงานตอนนี้
           </button>
         )}

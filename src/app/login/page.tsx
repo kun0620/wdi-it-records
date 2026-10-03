@@ -23,11 +23,11 @@ export default function LoginPage() {
           <p className="text-sm text-muted">เข้าสู่ระบบด้วยบัญชีเดียวกับระบบลงเวลา</p>
           <label className="block space-y-1">
             <span className="text-sm font-medium">อีเมล</span>
-            <input name="email" type="email" autoComplete="email" required className="field" />
+            <input name="email" type="email" autoComplete="email" required className="input" />
           </label>
           <label className="block space-y-1">
             <span className="text-sm font-medium">รหัสผ่าน</span>
-            <input name="password" type="password" autoComplete="current-password" required className="field" />
+            <input name="password" type="password" autoComplete="current-password" required className="input" />
           </label>
           {state.error && <p className="text-sm text-red-600">{state.error}</p>}
           <button type="submit" disabled={pending} className="btn btn-primary w-full py-2.5">

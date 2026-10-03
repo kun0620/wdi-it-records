@@ -31,3 +31,21 @@ export function longThaiDate(s: string): string {
   return new Intl.DateTimeFormat("th-TH", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
     .format(new Date(`${s}T00:00:00Z`));
 }
+
+// yyyy-mm-dd -> "28 ก.ย." (Thai short day + month)
+export function shortThaiDate(s: string): string {
+  return new Intl.DateTimeFormat("th-TH", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${s}T00:00:00Z`));
+}
+
+// yyyy-mm-dd -> "ก.ย." (Thai short month)
+export function thaiMonth(s: string): string {
+  return new Intl.DateTimeFormat("th-TH", { month: "short", timeZone: "UTC" }).format(new Date(`${s}T00:00:00Z`));
+}
+
+// ISO week number of a yyyy-mm-dd date
+export function isoWeek(s: string): number {
+  const d = new Date(`${s}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));       // Thursday of this week
+  const yearStart = Date.UTC(d.getUTCFullYear(), 0, 1);
+  return Math.ceil(((d.getTime() - yearStart) / 864e5 + 1) / 7);
+}

@@ -7,7 +7,7 @@ import { ASSET_STATUSES, CATEGORY_SUGGESTIONS, isComputer, type AssetRow } from 
 
 type Props = { rec: Partial<AssetRow>; users: string[]; depts: string[]; positions?: string[]; canEdit: boolean; today: string };
 
-const input = "field";
+const input = "input";
 
 function Field({ label, req, full, hint, children }: { label: string; req?: boolean; full?: boolean; hint?: string; children: React.ReactNode }) {
   return (

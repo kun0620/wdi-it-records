@@ -18,7 +18,7 @@ function FileList({ files, empty }: { files: FileItem[]; empty: string }) {
               {(f.size / 1024).toFixed(0)} KB
               {f.updated && ` · ${new Date(f.updated).toLocaleString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}`}
             </span>
-            <a href={`/exports/download?path=${encodeURIComponent(f.path)}`} className="btn px-2.5 py-1">
+            <a href={`/exports/download?path=${encodeURIComponent(f.path)}`} className="btn btn-secondary px-2.5 py-1">
               ดาวน์โหลด
             </a>
           </span>

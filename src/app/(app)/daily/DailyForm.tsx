@@ -46,11 +46,11 @@ export default function DailyForm({ date, today, existing, defaultChecker, users
         <input
           type="date" name="check_date" value={date} max={today}
           onChange={(e) => e.target.value && router.push(`/daily?date=${e.target.value}`)}
-          className="field w-auto"
+          className="input w-auto"
         />
         {canEdit && (
           <button type="button" onClick={() => { setResults(Object.fromEntries(CHECKS.map((c) => [c.k, "OK"]))); setConfirmIncomplete(false); }}
-            className="btn px-3">
+            className="btn btn-secondary px-3">
             ทุกข้อ OK
           </button>
         )}
@@ -91,14 +91,14 @@ export default function DailyForm({ date, today, existing, defaultChecker, users
       <label className="block space-y-1">
         <span className="text-sm">รายละเอียด NG / หมายเหตุ</span>
         <textarea name="remark" defaultValue={existing?.remark ?? ""} readOnly={!canEdit} rows={3}
-          className="field" />
+          className="input" />
       </label>
 
       <div className="flex flex-wrap items-end gap-3">
         <label className="block flex-1 space-y-1">
           <span className="text-sm">ผู้ตรวจ *</span>
           <input name="checker" list="daily-users" defaultValue={defaultChecker} readOnly={!canEdit} required
-            className="field" />
+            className="input" />
           <datalist id="daily-users">{users.map((u) => <option key={u} value={u} />)}</datalist>
         </label>
         {canEdit && (
