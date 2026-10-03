@@ -68,3 +68,9 @@ export function prefixOf(category: string | null | undefined): string {
   if (c.startsWith("access control")) return "AC";
   return "OT";
 }
+
+// Table label: "Network - Access Switch (PoE)" -> "Access Switch (PoE)"; the tag/icon already tells the group.
+export function shortCategory(category: string | null | undefined): string | null {
+  if (!category) return null;
+  return category.includes(" - ") ? category.split(" - ").slice(1).join(" - ") : category;
+}

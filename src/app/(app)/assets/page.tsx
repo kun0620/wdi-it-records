@@ -5,7 +5,7 @@ import AssetIcon from "./AssetIcon";
 import { getSession } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/dates";
 import { ACTIVE, WARRANTY_DAYS } from "@/lib/asset-health";
-import { ASSET_STATUSES, PREFIXES, statusOf, type AssetRow } from "./shared";
+import { ASSET_STATUSES, PREFIXES, shortCategory, statusOf, type AssetRow } from "./shared";
 
 const ctl = "field text-sm";
 
@@ -168,7 +168,7 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
                       </Link>
                     </td>
                     <td className={td}><span className={`rounded-full px-2 py-0.5 text-xs ${st?.tone ?? ""}`}>{st?.th ?? r.status}</span></td>
-                    <td className={td}>{r.category ?? dash}</td>
+                    <td className={`${td} max-w-36 truncate`} title={r.category ?? ""}>{shortCategory(r.category) ?? dash}</td>
                     <td className={`${td} max-w-60 truncate`} title={[r.manufacturer, r.model, r.name].filter(Boolean).join(" ")}>
                       {[r.manufacturer, r.model].filter(Boolean).join(" ") || r.name || dash}
                     </td>
