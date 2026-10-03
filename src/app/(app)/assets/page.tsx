@@ -143,7 +143,7 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
               <tr className="text-left text-xs text-muted">
                 {COLS.map((c, i) => (
                   <th key={c.key} scope="col"
-                    className={`whitespace-nowrap border-b border-[var(--line)] bg-surface-2 px-3 py-2.5 font-medium ${i === 0 ? "sticky left-0 z-10 shadow-[1px_0_0_var(--line)]" : ""}`}>
+                    className={`sticky top-0 whitespace-nowrap border-b border-[var(--line)] bg-surface-2 px-3 py-2.5 font-medium ${i === 0 ? "left-0 z-30 shadow-[1px_0_0_var(--line)]" : "z-20"}`}>
                     <Link href={sortHref(c.key)} className="inline-flex items-center gap-1 hover:text-foreground">
                       {c.label}
                       {sort === c.key && (dir === "asc" ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />)}

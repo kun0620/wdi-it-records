@@ -59,7 +59,7 @@ export default function ScrollTable({ label, children }: { label: string; childr
           onPointerUp={() => { setTimeout(() => (drag.current = null)); }}
           onPointerLeave={() => { drag.current = null; }}
           onClickCapture={(e) => { if (drag.current?.moved) { e.preventDefault(); e.stopPropagation(); } }}
-          className={`overflow-x-auto overscroll-x-contain ${edge.left || edge.right ? "cursor-grab active:cursor-grabbing" : ""}`}
+          className={`max-h-[calc(100dvh-9rem)] overflow-auto overscroll-x-contain sm:max-h-[calc(100dvh-6rem)] ${edge.left || edge.right ? "cursor-grab active:cursor-grabbing" : ""}`}
         >
           {children}
         </div>
