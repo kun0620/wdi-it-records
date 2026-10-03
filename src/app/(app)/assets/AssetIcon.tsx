@@ -12,12 +12,12 @@ const KIND: Record<string, { icon: LucideIcon; cls: string }> = {
   OT: { icon: Package, cls: "bg-slate-500/12 text-slate-600 dark:text-slate-400" },
 };
 
-export default function AssetIcon({ tag, category, size = "md" }: { tag: string | null; category: string | null; size?: "md" | "lg" }) {
+export default function AssetIcon({ tag, category, size = "md" }: { tag: string | null; category: string | null; size?: "sm" | "md" | "lg" }) {
   const p = tag?.match(/^WDI-([A-Z]+)-/)?.[1] ?? prefixOf(category);
   const { icon: Icon, cls } = KIND[p] ?? KIND.OT;
   return (
-    <span className={`grid shrink-0 place-items-center rounded-xl ${cls} ${size === "lg" ? "size-12" : "size-10"}`}>
-      <Icon className={size === "lg" ? "size-6" : "size-5"} strokeWidth={1.8} />
+    <span className={`grid shrink-0 place-items-center rounded-xl ${cls} ${size === "lg" ? "size-12" : size === "sm" ? "size-7 rounded-lg" : "size-10"}`}>
+      <Icon className={size === "lg" ? "size-6" : size === "sm" ? "size-4" : "size-5"} strokeWidth={1.8} />
     </span>
   );
 }

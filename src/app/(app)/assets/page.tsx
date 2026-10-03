@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { ChevronDown, ChevronUp, Search } from "lucide-react";
+import AssetRowLink from "./AssetRowLink";
 import AssetIcon from "./AssetIcon";
 import { getSession } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/dates";
@@ -7,6 +8,20 @@ import { ACTIVE, WARRANTY_DAYS } from "@/lib/asset-health";
 import { ASSET_STATUSES, PREFIXES, statusOf, type AssetRow } from "./shared";
 
 const ctl = "field text-sm";
+
+// Table columns; key = ?sort= value, col = DB column it orders by.
+const COLS = [
+  { key: "tag", label: "แท็ก", col: "asset_tag" },
+  { key: "status", label: "สถานะ", col: "status" },
+  { key: "category", label: "ประเภท", col: "category" },
+  { key: "model", label: "ยี่ห้อ / รุ่น", col: "model" },
+  { key: "user", label: "ผู้ใช้", col: "user_name" },
+  { key: "position", label: "ตำแหน่ง", col: "position" },
+  { key: "dept", label: "แผนก", col: "department" },
+  { key: "location", label: "ที่ตั้ง", col: "location" },
+  { key: "ip", label: "IP", col: "ip_address" },
+  { key: "serial", label: "S/N", col: "serial" },
+] as const;
 
 export default async function AssetListPage(props: PageProps<"/assets">) {
   const sp = await props.searchParams;
@@ -17,9 +32,21 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
   // dashboard shortcuts: ?missing=serial, ?warranty=soon (both limited to machines we actually have)
   const missing = str("missing") === "serial";
   const warranty = str("warranty") === "soon";
+  const sort = COLS.some((c) => c.key === str("sort")) ? str("sort") : "tag";
+  const dir = str("dir") === "desc" ? "desc" : "asc";
+  // header link: same filters, this column; clicking the active column flips the direction
+  const sortHref = (key: string) => {
+    const p = new URLSearchParams(Object.entries(sp).filter(([, v]) => typeof v === "string") as [string, string][]);
+    p.set("sort", key);
+    p.set("dir", sort === key && dir === "asc" ? "desc" : "asc");
+    return `/assets?${p}`;
+  };
 
   const { supabase, role } = await getSession();
-  let query = supabase.from("assets").select("*").order("asset_tag", { nullsFirst: false }).limit(1000);
+  const sortCol = COLS.find((c) => c.key === sort)!.col;
+  let query = supabase.from("assets").select("*").order(sortCol, { ascending: dir === "asc", nullsFirst: false });
+  if (sortCol !== "asset_tag") query = query.order("asset_tag");
+  query = query.limit(1000);
   if (status) query = query.eq("status", status);
   else if (missing || warranty) query = query.in("status", ACTIVE);
   else query = query.not("status", "in", "(Retired,Planned)");      // default: things we actually have
@@ -36,7 +63,7 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
   const rows = (data ?? []) as AssetRow[];
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
+    <main className="mx-auto w-full max-w-7xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold sm:text-2xl">ทรัพย์สิน IT</h1>
@@ -108,32 +135,57 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
         </p>
       )}
 
-      <ul className="card divide-y divide-[var(--line)] overflow-hidden">
-        {rows.length === 0 && <li className="px-4 py-6 text-center text-sm opacity-60">ไม่พบรายการ</li>}
-        {rows.map((r) => {
-          const st = statusOf(r.status);
-          return (
-            <li key={r.id}>
-              <Link href={`/assets/${r.id}`} className="flex items-start gap-3 px-3 py-3 hover:bg-surface-2 sm:px-4">
-                <AssetIcon tag={r.asset_tag} category={r.category} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-semibold text-brand">{r.asset_tag ?? "ยังไม่มีแท็ก"}</span>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] ${st?.tone ?? ""}`}>{st?.th ?? r.status}</span>
-                  </div>
-                  <div className="truncate text-[15px] font-medium">
-                    {[r.manufacturer, r.model].filter(Boolean).join(" ") || r.name || <span className="opacity-60">{r.category} (ไม่ระบุรุ่น)</span>}
-                    {r.name && r.model && <span className="font-normal opacity-60"> · {r.name}</span>}
-                  </div>
-                  <p className="truncate text-xs text-muted">
-                    {[r.user_name, r.position, r.department, r.location, r.ip_address, r.serial && `S/N ${r.serial}`].filter(Boolean).join(" · ") || r.category}
-                  </p>
-                </div>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[920px] border-separate border-spacing-0 text-sm">
+            <thead>
+              <tr className="text-left text-xs text-muted">
+                {COLS.map((c, i) => (
+                  <th key={c.key} scope="col"
+                    className={`whitespace-nowrap border-b border-[var(--line)] bg-surface-2 px-3 py-2.5 font-medium ${i === 0 ? "sticky left-0 z-10 shadow-[1px_0_0_var(--line)]" : ""}`}>
+                    <Link href={sortHref(c.key)} className="inline-flex items-center gap-1 hover:text-foreground">
+                      {c.label}
+                      {sort === c.key && (dir === "asc" ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />)}
+                    </Link>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 && (
+                <tr><td colSpan={COLS.length} className="px-4 py-8 text-center text-muted">ไม่พบรายการ</td></tr>
+              )}
+              {rows.map((r) => {
+                const st = statusOf(r.status);
+                const td = "whitespace-nowrap border-b border-[var(--line)] bg-surface px-3 py-2.5 group-even:bg-surface-2 group-hover:bg-[color-mix(in_srgb,var(--brand)_9%,var(--surface))]";
+                const dash = <span className="text-muted">–</span>;
+                return (
+                  <AssetRowLink key={r.id} href={`/assets/${r.id}`}>
+                    <td className={`${td} sticky left-0 z-10 shadow-[1px_0_0_var(--line)]`}>
+                      <Link href={`/assets/${r.id}`} className="flex items-center gap-2">
+                        <span className="hidden sm:contents"><AssetIcon tag={r.asset_tag} category={r.category} size="sm" /></span>
+                        <span className="font-mono text-xs font-semibold text-brand sm:text-[13px]">{r.asset_tag ?? "—"}</span>
+                      </Link>
+                    </td>
+                    <td className={td}><span className={`rounded-full px-2 py-0.5 text-xs ${st?.tone ?? ""}`}>{st?.th ?? r.status}</span></td>
+                    <td className={td}>{r.category ?? dash}</td>
+                    <td className={`${td} max-w-60 truncate`} title={[r.manufacturer, r.model, r.name].filter(Boolean).join(" ")}>
+                      {[r.manufacturer, r.model].filter(Boolean).join(" ") || r.name || dash}
+                    </td>
+                    <td className={`${td} max-w-56 truncate`} title={r.user_name ?? ""}>{r.user_name ?? dash}</td>
+                    <td className={`${td} max-w-52 truncate`} title={r.position ?? ""}>{r.position ?? dash}</td>
+                    <td className={td}>{r.department ?? dash}</td>
+                    <td className={`${td} max-w-40 truncate`}>{r.location ?? dash}</td>
+                    <td className={`${td} font-mono text-xs`}>{r.ip_address ?? dash}</td>
+                    <td className={`${td} font-mono text-xs`}>{r.serial ?? dash}</td>
+                  </AssetRowLink>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p className="text-xs text-muted sm:hidden">เลื่อนตารางไปทางขวาเพื่อดูคอลัมน์อื่น · แตะแถวเพื่อเปิด</p>
     </main>
   );
 }
