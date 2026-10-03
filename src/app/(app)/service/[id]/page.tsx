@@ -19,8 +19,8 @@ export default async function EditServicePage(props: PageProps<"/service/[id]">)
   const rec = data as ServiceRow;
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-4 px-4 py-6">
-      <h1 className="text-lg font-semibold">{rec.req_no}</h1>
+    <main className="mx-auto w-full max-w-5xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
+      <h1 className="text-xl font-bold sm:text-2xl">{rec.req_no}</h1>
       <ServiceForm key={rec.updated_at} rec={rec} lists={lists} assets={assets} canEdit={role === "editor"} today={todayISO()} now={nowHHMM()} />
     </main>
   );

@@ -7,7 +7,7 @@ import { ASSET_STATUSES, CATEGORY_SUGGESTIONS, isComputer, type AssetRow } from 
 
 type Props = { rec: Partial<AssetRow>; users: string[]; depts: string[]; positions?: string[]; canEdit: boolean; today: string };
 
-const input = "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 dark:border-white/20 read-only:opacity-70";
+const input = "field";
 
 function Field({ label, req, full, hint, children }: { label: string; req?: boolean; full?: boolean; hint?: string; children: React.ReactNode }) {
   return (
@@ -86,7 +86,7 @@ export default function AssetForm({ rec, users, depts, positions = [], canEdit, 
 
       <div className="flex flex-wrap gap-3">
         {canEdit && (
-          <button type="submit" disabled={pending} className="rounded-md bg-foreground px-5 py-2.5 text-background disabled:opacity-50">
+          <button type="submit" disabled={pending} className="btn btn-primary px-5 py-2.5">
             {pending ? "กำลังบันทึก…" : "บันทึก"}
           </button>
         )}

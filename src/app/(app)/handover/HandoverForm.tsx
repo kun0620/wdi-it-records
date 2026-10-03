@@ -8,7 +8,7 @@ export type PickAsset = { id: number; asset_tag: string; label: string; status: 
 
 type Props = { assets: PickAsset[]; initialAsset: number | null; users: string[]; positions: string[]; depts: string[]; conditions: string[]; today: string };
 
-const input = "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 dark:border-white/20";
+const input = "field";
 
 export default function HandoverForm({ assets, initialAsset, users, positions, depts, conditions, today }: Props) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveHandover, {});
@@ -85,7 +85,7 @@ export default function HandoverForm({ assets, initialAsset, users, positions, d
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
       <div className="flex gap-3">
-        <button type="submit" disabled={pending || !asset} className="rounded-md bg-foreground px-5 py-2.5 text-background disabled:opacity-50">
+        <button type="submit" disabled={pending || !asset} className="btn btn-primary px-5 py-2.5">
           {pending ? "กำลังบันทึก…" : act === "Return" ? "บันทึกรับคืน" : "บันทึกส่งมอบ"}
         </button>
         <Link href="/handover" className="px-2 py-2.5 text-sm opacity-70">ยกเลิก</Link>

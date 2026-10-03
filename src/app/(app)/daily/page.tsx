@@ -40,8 +40,8 @@ export default async function DailyPage(props: PageProps<"/daily">) {
   }
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
-      <h1 className="text-lg font-semibold">เช็คประจำวัน <span className="text-sm font-normal opacity-60">Daily Check</span></h1>
+    <main className="mx-auto w-full max-w-5xl space-y-6 px-3 py-4 sm:px-6 sm:py-6">
+      <h1 className="text-xl font-bold sm:text-2xl">เช็คประจำวัน <span className="text-sm font-normal opacity-60">Daily Check</span></h1>
 
       {existing && existing.ng_count > 0 && role === "editor" && (
         <IncidentLink row={existing} />
@@ -57,8 +57,8 @@ export default async function DailyPage(props: PageProps<"/daily">) {
         canEdit={role === "editor"}
       />
 
-      <section className="rounded-xl border border-black/10 p-4 dark:border-white/15">
-        <h2 className="mb-3 font-medium">ย้อนหลัง 14 วันที่บันทึก</h2>
+      <section className="card p-4 sm:p-5">
+        <h2 className="mb-3 font-semibold">ย้อนหลัง 14 วันที่บันทึก</h2>
         {rows.length === 0 ? (
           <p className="text-sm opacity-60">ยังไม่มีข้อมูล</p>
         ) : (
@@ -73,7 +73,7 @@ export default async function DailyPage(props: PageProps<"/daily">) {
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.check_date} className="border-t border-black/5 dark:border-white/10">
+                  <tr key={r.check_date} className="border-t border-[var(--line)]">
                     <td className="py-1.5 pr-2">
                       <Link href={`/daily?date=${r.check_date}`} className="underline-offset-2 hover:underline">{thDate(r.check_date)}</Link>
                     </td>

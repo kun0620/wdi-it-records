@@ -11,17 +11,17 @@ export default async function HandoverListPage() {
   const rows = (data ?? []) as Row[];
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-4 px-4 py-6">
+    <main className="mx-auto w-full max-w-5xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg font-semibold">รับ-คืนอุปกรณ์ <span className="text-sm font-normal opacity-60">Handover</span></h1>
-        {role === "editor" && <Link href="/handover/new" className="rounded-md bg-foreground px-4 py-2 text-sm text-background">+ บันทึก</Link>}
+        <h1 className="text-xl font-bold sm:text-2xl">รับ-คืนอุปกรณ์ <span className="text-sm font-normal opacity-60">Handover</span></h1>
+        {role === "editor" && <Link href="/handover/new" className="btn btn-primary">+ บันทึก</Link>}
       </div>
       {error && <p className="text-sm text-red-600">{error.message}</p>}
-      <ul className="divide-y divide-black/5 rounded-xl border border-black/10 dark:divide-white/10 dark:border-white/15">
+      <ul className="card divide-y divide-[var(--line)] overflow-hidden">
         {rows.length === 0 && <li className="px-4 py-6 text-center text-sm opacity-60">ยังไม่มีรายการ</li>}
         {rows.map((r) => (
           <li key={r.id}>
-            <Link href={`/assets/${r.asset_id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[.03] dark:hover:bg-white/[.04]">
+            <Link href={`/assets/${r.asset_id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-surface-2">
               <span className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-xs ${r.action === "Issue" ? "bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-100" : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200"}`}>
                 {r.action === "Issue" ? "ส่งมอบ" : "รับคืน"}
               </span>

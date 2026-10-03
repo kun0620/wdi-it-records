@@ -15,7 +15,7 @@ type Props = {
   now: string;
 };
 
-const input = "w-full rounded-md border border-black/15 bg-transparent px-3 py-2 dark:border-white/20 read-only:opacity-70";
+const input = "field";
 
 function Field({ label, req, full, children }: { label: string; req?: boolean; full?: boolean; children: React.ReactNode }) {
   return (
@@ -115,12 +115,12 @@ export default function ServiceForm({ rec, lists, assets, canEdit, today, now }:
 
       <div className="flex flex-wrap gap-3">
         {canEdit && (
-          <button type="submit" disabled={pending} className="rounded-md bg-foreground px-5 py-2.5 text-background disabled:opacity-50">
+          <button type="submit" disabled={pending} className="btn btn-primary px-5 py-2.5">
             {pending ? "กำลังบันทึก…" : "บันทึก"}
           </button>
         )}
         {canEdit && !isNew && rec.status !== "Closed" && (
-          <button type="button" onClick={() => markClosed(true)} className="rounded-md border border-black/15 px-4 py-2.5 dark:border-white/20">
+          <button type="button" onClick={() => markClosed(true)} className="btn px-4 py-2.5">
             ✓ ปิดงานตอนนี้
           </button>
         )}

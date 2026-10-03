@@ -6,6 +6,7 @@ import { thDate, todayISO } from "@/lib/dates";
 import AssetForm from "../AssetForm";
 import { prefixOf, statusOf, type AssetRow } from "../shared";
 import { retagAsset } from "../actions";
+import AssetIcon from "../AssetIcon";
 import { PRIORITY_TONE, STATUS_TONE } from "../../service/shared";
 
 type Audit = { id: number; at: string; actor: string | null; op: string; changed: Record<string, [unknown, unknown]> | null };
@@ -35,13 +36,17 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
   const st = statusOf(rec.status);
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+    <main className="mx-auto w-full max-w-5xl space-y-6 px-3 py-4 sm:px-6 sm:py-6">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="font-mono text-lg font-semibold">{rec.asset_tag ?? "ยังไม่มีแท็ก"}</h1>
+        <AssetIcon tag={rec.asset_tag} category={rec.category} size="lg" />
+        <div className="min-w-0">
+          <h1 className="font-mono text-xl font-bold sm:text-2xl">{rec.asset_tag ?? "ยังไม่มีแท็ก"}</h1>
+          <p className="truncate text-sm text-muted">{[rec.manufacturer, rec.model].filter(Boolean).join(" ") || rec.name || rec.category}</p>
+        </div>
         <span className={`rounded-full px-2 py-0.5 text-xs ${st?.tone ?? ""}`}>{st?.th ?? rec.status}</span>
         {rec.source_sheet && <span className="text-xs opacity-50">นำเข้าจากชีต {rec.source_sheet}</span>}
         {rec.asset_tag && (
-          <Link href={`/assets/labels?ids=${rec.id}`} className="ml-auto rounded-md border border-black/15 px-3 py-1.5 text-sm dark:border-white/20">
+          <Link href={`/assets/labels?ids=${rec.id}`} className="ml-auto btn px-3 py-1.5">
             พิมพ์ป้าย QR
           </Link>
         )}
@@ -50,7 +55,7 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
         <form action={retagAsset} className="flex flex-wrap items-center gap-3 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
           <input type="hidden" name="id" value={rec.id} />
           <span>แท็ก {rec.asset_tag} ไม่ตรงกับประเภท “{rec.category}” (ควรขึ้นต้น WDI-{prefixOf(rec.category)}-)</span>
-          {role === "editor" && <button className="rounded-md bg-foreground px-3 py-1 text-background">ออกแท็กใหม่ตามประเภท</button>}
+          {role === "editor" && <button className="btn btn-primary px-3 py-1">ออกแท็กใหม่ตามประเภท</button>}
         </form>
       )}
       {sp.handover && (
@@ -62,11 +67,11 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
         <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-900 dark:bg-green-950 dark:text-green-100">บันทึกแล้ว</p>
       )}
 
-      <section className="rounded-xl border border-black/10 p-4 dark:border-white/15">
+      <section className="card p-4 sm:p-5">
         <div className="mb-2 flex items-center justify-between gap-3">
-          <h2 className="font-medium">การรับ-คืน</h2>
+          <h2 className="font-semibold">การรับ-คืน</h2>
           {role === "editor" && ["In Use", "In Stock", "Repair"].includes(rec.status) && rec.asset_tag && (
-            <Link href={`/handover/new?asset=${rec.id}`} className="rounded-md bg-foreground px-3 py-1.5 text-sm text-background">
+            <Link href={`/handover/new?asset=${rec.id}`} className="btn btn-primary px-3 py-1.5">
               {rec.status === "In Use" ? "รับคืน" : "ส่งมอบ"}
             </Link>
           )}
@@ -76,7 +81,7 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
         </p>
         <ul className="space-y-1 text-sm">
           {(handovers ?? []).map((h) => (
-            <li key={h.id} className="flex flex-wrap gap-x-2 border-t border-black/5 pt-1 dark:border-white/10">
+            <li key={h.id} className="flex flex-wrap gap-x-2 border-t border-[var(--line)] pt-1">
               <span className="opacity-60">{thDate(h.h_date)}</span>
               <b>{h.action === "Issue" ? "ส่งมอบให้" : "รับคืนจาก"}</b> {h.user_name}
               <span className="opacity-60">{[h.position, h.dept, h.condition, h.form_ref && `ใบ ${h.form_ref}`, h.remark].filter(Boolean).join(" · ")}</span>
@@ -86,18 +91,18 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
         </ul>
       </section>
 
-      <section className="rounded-xl border border-black/10 p-4 dark:border-white/15">
+      <section className="card p-4 sm:p-5">
         <div className="mb-2 flex items-center justify-between gap-3">
-          <h2 className="font-medium">ประวัติแจ้งปัญหา / ซ่อม <span className="text-xs font-normal opacity-60">{services?.length ?? 0} ครั้ง</span></h2>
+          <h2 className="font-semibold">ประวัติแจ้งปัญหา / ซ่อม <span className="text-xs font-normal opacity-60">{services?.length ?? 0} ครั้ง</span></h2>
           {role === "editor" && (
-            <Link href={`/service/new?asset=${rec.id}`} className="rounded-md border border-black/15 px-3 py-1.5 text-sm dark:border-white/20">
+            <Link href={`/service/new?asset=${rec.id}`} className="btn px-3 py-1.5">
               + แจ้งปัญหาเครื่องนี้
             </Link>
           )}
         </div>
         <ul className="space-y-1 text-sm">
           {(services ?? []).map((s) => (
-            <li key={s.id} className="border-t border-black/5 pt-1 first:border-0 dark:border-white/10">
+            <li key={s.id} className="border-t border-[var(--line)] pt-1 first:border-0">
               <Link href={`/service/${s.id}`} className="flex flex-wrap items-center gap-x-2 hover:underline">
                 <span className={`rounded px-1.5 text-xs font-semibold ${PRIORITY_TONE[s.priority] ?? ""}`}>{s.priority}</span>
                 <span className="font-medium">{s.req_no}</span>
@@ -114,14 +119,14 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
       <AssetForm key={rec.updated_at} rec={rec} users={lists.user.map((u) => u.value)} depts={lists.dept.map((d) => d.value)} positions={positions}
         canEdit={role === "editor"} today={todayISO()} />
 
-      <section className="rounded-xl border border-black/10 p-4 dark:border-white/15">
-        <h2 className="mb-2 font-medium">ประวัติการแก้ไข</h2>
+      <section className="card p-4 sm:p-5">
+        <h2 className="mb-2 font-semibold">ประวัติการแก้ไข</h2>
         <ul className="space-y-2 text-sm">
           {(history as Audit[] | null ?? []).map((h) => {
             const changes = Object.entries(h.changed ?? {}).filter(([k]) => !HIDDEN.has(k));
             if (h.op === "UPDATE" && changes.length === 0) return null;
             return (
-              <li key={h.id} className="border-t border-black/5 pt-2 first:border-0 first:pt-0 dark:border-white/10">
+              <li key={h.id} className="border-t border-[var(--line)] pt-2 first:border-0 first:pt-0">
                 <div className="text-xs opacity-60">
                   {new Date(h.at).toLocaleString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                   {" · "}{h.actor || "ระบบ"}{" · "}{h.op === "INSERT" ? "เพิ่มรายการ" : "แก้ไข"}

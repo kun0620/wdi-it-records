@@ -22,11 +22,11 @@ export default async function ServiceListPage(props: PageProps<"/service">) {
   const savedRow = saved ? rows.find((r) => r.id === saved) : null;
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-4 px-4 py-6">
+    <main className="mx-auto w-full max-w-5xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg font-semibold">คำขอ / ปัญหา <span className="text-sm font-normal opacity-60">Service Log</span></h1>
+        <h1 className="text-xl font-bold sm:text-2xl">คำขอ / ปัญหา <span className="text-sm font-normal opacity-60">Service Log</span></h1>
         {role === "editor" && (
-          <Link href="/service/new" className="rounded-md bg-foreground px-4 py-2 text-sm text-background">+ เพิ่ม</Link>
+          <Link href="/service/new" className="btn btn-primary">+ เพิ่ม</Link>
         )}
       </div>
 
@@ -37,25 +37,25 @@ export default async function ServiceListPage(props: PageProps<"/service">) {
       )}
 
       <form className="flex flex-wrap gap-2">
-        <select name="view" defaultValue={view} className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20">
+        <select name="view" defaultValue={view} className="field w-auto text-sm">
           <option value="open">เฉพาะงานค้าง</option>
           <option value="all">ทั้งหมด</option>
         </select>
         <input name="q" defaultValue={q} placeholder="ค้นหา เลขที่ / ชื่อ / ระบบ / รายละเอียด"
-          className="min-w-48 flex-1 rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20" />
-        <button className="rounded-md border border-black/15 px-3 py-2 text-sm dark:border-white/20">ค้นหา</button>
+          className="min-w-48 flex-1 field w-auto text-sm" />
+        <button className="btn px-3">ค้นหา</button>
       </form>
 
       {error && <p className="text-sm text-red-600">{error.message}</p>}
 
       <p className="text-xs opacity-60">{rows.length} รายการ</p>
-      <ul className="divide-y divide-black/5 rounded-xl border border-black/10 dark:divide-white/10 dark:border-white/15">
+      <ul className="card divide-y divide-[var(--line)] overflow-hidden">
         {rows.length === 0 && <li className="px-4 py-6 text-center text-sm opacity-60">{view === "open" ? "ไม่มีงานค้าง" : "ยังไม่มีข้อมูล"}</li>}
         {rows.map((r) => {
           const open = OPEN_STATUSES.includes(r.status);
           return (
             <li key={r.id}>
-              <Link href={`/service/${r.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-black/[.03] dark:hover:bg-white/[.04]">
+              <Link href={`/service/${r.id}`} className="flex items-start gap-3 px-4 py-3 hover:bg-surface-2">
                 <span className={`mt-0.5 rounded px-1.5 py-0.5 text-xs font-semibold ${PRIORITY_TONE[r.priority] ?? ""}`}>{r.priority}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-x-2">

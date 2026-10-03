@@ -5,7 +5,7 @@ import { ASSET_STATUSES, PREFIXES, type AssetRow } from "../shared";
 import PrintButton from "./PrintButton";
 
 // A4 sticker sheet: 3 x 8 labels of 70 x 37 mm (common "24 per sheet" stock, no page margin).
-const ctl = "rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm dark:border-white/20";
+const ctl = "field w-auto text-sm";
 
 export default async function LabelsPage(props: PageProps<"/assets/labels">) {
   const sp = await props.searchParams;

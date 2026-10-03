@@ -1,6 +1,9 @@
 import Link from "next/link";
+import {
+  AlarmClock, CalendarCheck, ClipboardCheck, Clock3, Inbox, Plus, Siren, TriangleAlert, type LucideIcon,
+} from "lucide-react";
 import { getSession } from "@/lib/supabase/server";
-import { daysBetween, thDate, todayISO } from "@/lib/dates";
+import { daysBetween, longThaiDate, thDate, todayISO } from "@/lib/dates";
 import { PRIORITY_TONE, STATUS_TONE } from "./service/shared";
 import { ASSET_STATUSES } from "./assets/shared";
 import { assetHealth, WARRANTY_DAYS } from "@/lib/asset-health";
@@ -19,7 +22,7 @@ type Dash = {
   heat: Record<string, { c: number; ng: number }>;
 };
 
-const card = "rounded-xl border border-black/10 p-4 dark:border-white/15";
+const card = "card p-4 sm:p-5";
 const MAINT_TONE: Record<string, string> = {
   OK: "bg-green-100 text-green-900 dark:bg-green-950 dark:text-green-100",
   "DUE SOON": "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100",
@@ -27,15 +30,33 @@ const MAINT_TONE: Record<string, string> = {
   "NOT DONE": "bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-100",
 };
 
-function Kpi({ label, value, sub, tone }: { label: string; value: string | number; sub: string; tone?: "warn" | "bad" | "good" }) {
-  const bar = tone === "bad" ? "border-l-[var(--status-critical)]" : tone === "warn" ? "border-l-[var(--status-warning)]" : tone === "good" ? "border-l-[var(--status-good)]" : "border-l-transparent";
-  return (
-    <div className={`${card} border-l-4 ${bar}`}>
-      <div className="text-xs opacity-60">{label}</div>
-      <div className="text-2xl font-semibold tabular-nums">{value}</div>
-      <div className="text-xs opacity-60">{sub}</div>
-    </div>
+type Tone = "warn" | "bad" | "good" | "info";
+const TONE: Record<Tone, { chip: string; tag: string; text: string }> = {
+  good: { chip: "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400", tag: "bg-emerald-500/12 text-emerald-700 dark:text-emerald-300", text: "ปกติ" },
+  warn: { chip: "bg-amber-500/15 text-amber-600 dark:text-amber-400", tag: "bg-amber-500/15 text-amber-800 dark:text-amber-300", text: "ต้องดู" },
+  bad: { chip: "bg-red-500/12 text-red-600 dark:text-red-400", tag: "bg-red-500/12 text-red-700 dark:text-red-300", text: "เร่งด่วน" },
+  info: { chip: "bg-brand-soft text-brand", tag: "", text: "" },
+};
+
+// Big-number tile. Tone is carried by the icon chip AND a text tag, never colour alone.
+function Kpi({ label, value, sub, tone = "info", icon: Icon, href }: {
+  label: string; value: string | number; sub: string; tone?: Tone; icon: LucideIcon; href?: string;
+}) {
+  const t = TONE[tone];
+  const body = (
+    <>
+      <div className="flex items-start justify-between gap-2">
+        <span className={`grid size-9 place-items-center rounded-xl ${t.chip}`}><Icon className="size-[18px]" strokeWidth={2} /></span>
+        {t.text && <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${t.tag}`}>{t.text}</span>}
+      </div>
+      <div className="mt-3 text-3xl font-bold leading-none tracking-tight tabular-nums sm:text-4xl">{value}</div>
+      <div className="mt-1.5 text-sm font-medium">{label}</div>
+      <div className="mt-0.5 truncate text-xs text-muted">{sub}</div>
+    </>
   );
+  return href
+    ? <Link href={href} className="card block p-4 transition-shadow hover:shadow-md sm:p-5">{body}</Link>
+    : <div className="card p-4 sm:p-5">{body}</div>;
 }
 
 // 8-week requests, stacked: general (series-1) + incidents (series-2); one y-scale, 2px gap between segments.
@@ -55,7 +76,7 @@ function Trend({ weeks }: { weeks: Dash["trend"] }) {
           </div>
         ))}
       </div>
-      <div className="mt-1 flex gap-2 border-t border-black/10 pt-1 dark:border-white/15">
+      <div className="mt-1 flex gap-2 border-t border-[var(--line-strong)] pt-1">
         {weeks.map((w) => <span key={w.week_start} className="flex-1 text-center text-[10px] opacity-60">{thDate(w.week_start).slice(0, 5)}</span>)}
       </div>
       <div className="mt-2 flex gap-4 text-xs opacity-80">
@@ -117,30 +138,46 @@ export default async function Dashboard() {
   const { service: s, backlog: bl, checks: ck, maintenance: mt } = d;
   const p1 = bl.by_priority.find((x) => x.priority === "P1")?.open ?? 0;
   const pct = ck.working_days > 0 ? Math.min(1, ck.days_complete / ck.working_days) : null;
+  const dailyDone = d.heat[today]?.c === 1;
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-4 px-4 py-6">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-lg font-semibold">ภาพรวมงาน IT</h1>
-        <span className="text-xs opacity-60">สัปดาห์ {thDate(d.period.week_start)} – {thDate(d.period.week_end)}</span>
+    <main className="mx-auto w-full max-w-7xl space-y-4 px-3 py-4 sm:space-y-5 sm:px-6 sm:py-6">
+      {/* hero */}
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#163a5a] via-[#1f4e78] to-[#2a78d6] p-5 text-white shadow-lg sm:p-6">
+        <div className="pointer-events-none absolute -right-10 -top-16 size-56 rounded-full bg-white/10 blur-2xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-sm text-sky-100/80">{longThaiDate(today)}</p>
+            <h1 className="mt-1 text-2xl font-bold sm:text-3xl">ภาพรวมงาน IT</h1>
+            <p className="mt-1 text-sm text-sky-100/80">สัปดาห์ {thDate(d.period.week_start)} – {thDate(d.period.week_end)}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/daily" className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium backdrop-blur ${dailyDone ? "bg-white/15" : "bg-white text-[#163a5a]"}`}>
+              <ClipboardCheck className="size-4" /> {dailyDone ? "เช็ควันนี้แล้ว" : "เช็ครายวัน"}
+            </Link>
+            <Link href="/service/new" className="inline-flex items-center gap-1.5 rounded-xl bg-white/15 px-3.5 py-2 text-sm font-medium backdrop-blur hover:bg-white/25">
+              <Plus className="size-4" /> แจ้งปัญหา
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">
+        <Kpi icon={Inbox} label="งานค้าง" value={bl.total} href="/service" sub={`รอ HQ/Vendor ${bl.waiting} · นานสุด ${bl.oldest_days ?? 0} วัน`} tone={bl.total > 0 ? "warn" : "good"} />
+        <Kpi icon={Siren} label="P1 เปิดอยู่" value={p1} href="/service" sub="วิกฤต ต้องแก้ทันที" tone={p1 > 0 ? "bad" : "good"} />
+        <Kpi icon={CalendarCheck} label="คำขอสัปดาห์นี้" value={s.week.received} sub={`เดือนนี้ ${s.month.received} · ปิด ${s.month.closed}`} />
+        <Kpi icon={TriangleAlert} label="Incident เดือนนี้" value={s.month.incidents} sub={`สัปดาห์นี้ ${s.week.incidents} · ส่งต่อ ${s.month.escalated}`} tone={s.month.incidents > 0 ? "warn" : "info"} />
+        <Kpi icon={Clock3} label="เวลาแก้เฉลี่ย (ชม.)" value={s.month.avg_hours ?? "–"} sub={`สัปดาห์นี้ ${s.week.avg_hours ?? "–"}`} />
+        <Kpi icon={AlarmClock} label="Daily Check ครบ" value={pct == null ? "–" : `${Math.round(pct * 100)}%`} href="/daily" sub={`${ck.days_complete}/${ck.working_days} วันทำงาน`} tone={pct != null && pct < 1 ? "warn" : "good"} />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        <Kpi label="งานค้าง" value={bl.total} sub={`รอ HQ/Vendor ${bl.waiting} · ค้างนานสุด ${bl.oldest_days ?? 0} วัน`} tone={bl.total > 0 ? "warn" : "good"} />
-        <Kpi label="P1 ที่เปิดอยู่" value={p1} sub="วิกฤต ต้องแก้ทันที" tone={p1 > 0 ? "bad" : "good"} />
-        <Kpi label="คำขอสัปดาห์นี้" value={s.week.received} sub={`เดือนนี้ ${s.month.received} · ปิด ${s.month.closed}`} />
-        <Kpi label="Incident เดือนนี้" value={s.month.incidents} sub={`สัปดาห์นี้ ${s.week.incidents} · ส่งต่อ ${s.month.escalated}`} tone={s.month.incidents > 0 ? "warn" : undefined} />
-        <Kpi label="เวลาแก้เฉลี่ย (ชม.)" value={s.month.avg_hours ?? "–"} sub={`เดือนนี้ · สัปดาห์นี้ ${s.week.avg_hours ?? "–"}`} />
-        <Kpi label="Daily Check ครบ" value={pct == null ? "–" : `${Math.round(pct * 100)}%`} sub={`${ck.days_complete} / ${ck.working_days} วันทำงาน`} tone={pct != null && pct < 1 ? "warn" : "good"} />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <section className={card}>
-          <h2 className="mb-3 font-medium">คำขอรายสัปดาห์ <span className="text-xs font-normal opacity-60">(8 สัปดาห์)</span></h2>
+          <h2 className="mb-3 font-semibold">คำขอรายสัปดาห์ <span className="text-xs font-normal opacity-60">(8 สัปดาห์)</span></h2>
           <Trend weeks={d.trend} />
         </section>
         <section className={card}>
-          <h2 className="mb-3 font-medium">Daily Check <span className="text-xs font-normal opacity-60">(16 สัปดาห์)</span></h2>
+          <h2 className="mb-3 font-semibold">Daily Check <span className="text-xs font-normal opacity-60">(16 สัปดาห์)</span></h2>
           <Heat heat={d.heat} weekStart={d.period.week_start} today={today} />
           <p className="mt-3 text-xs opacity-70">
             NG สัปดาห์นี้ {ck.ng_week} · เดือนนี้ {ck.ng_month} · Weekly check สัปดาห์นี้: {ck.weekly_done ? "ทำแล้ว" : "ยังไม่ทำ"} · Backup ล่าสุด: {ck.latest_backup ?? "–"}
@@ -149,11 +186,11 @@ export default async function Dashboard() {
         </section>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <section className={card}>
-          <h2 className="mb-2 font-medium">งานค้าง <span className="text-xs font-normal opacity-60">(เก่าสุดก่อน)</span></h2>
+          <h2 className="mb-2 font-semibold">งานค้าง <span className="text-xs font-normal opacity-60">(เก่าสุดก่อน)</span></h2>
           {d.open.length === 0 ? <p className="text-sm opacity-60">ไม่มีงานค้าง</p> : (
-            <ul className="divide-y divide-black/5 dark:divide-white/10">
+            <ul className="divide-y divide-[var(--line)]">
               {d.open.map((r) => (
                 <li key={r.id}>
                   <Link href={`/service/${r.id}`} className="flex items-center gap-2 py-2 text-sm">
@@ -170,12 +207,12 @@ export default async function Dashboard() {
         </section>
 
         <section className={card}>
-          <h2 className="mb-2 font-medium">สถานะ Maintenance</h2>
+          <h2 className="mb-2 font-semibold">สถานะ Maintenance</h2>
           <table className="w-full text-sm">
             <thead className="text-left text-xs opacity-60"><tr><th className="py-1">ประเภท</th><th>ผ่านล่าสุด</th><th>ครบกำหนด</th><th>สถานะ</th></tr></thead>
             <tbody>
               {mt.types.map((m) => (
-                <tr key={m.type} className="border-t border-black/5 dark:border-white/10">
+                <tr key={m.type} className="border-t border-[var(--line)]">
                   <td className="py-1.5 pr-2">{m.type}<div className="text-xs opacity-50">ทุก {m.every_months} เดือน</div></td>
                   <td>{thDate(m.last_pass) || "–"}</td>
                   <td>{thDate(m.next_due) || "–"}</td>
@@ -190,7 +227,7 @@ export default async function Dashboard() {
 
       <section className={card}>
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-medium">ทรัพย์สิน IT <span className="text-xs font-normal opacity-60">รวม {ah.total}</span></h2>
+          <h2 className="font-semibold">ทรัพย์สิน IT <span className="text-xs font-normal opacity-60">รวม {ah.total}</span></h2>
           <Link href="/assets" className="text-xs opacity-70 hover:underline">ดูทั้งหมด →</Link>
         </div>
         <div className="mb-4 flex flex-wrap gap-2">
@@ -250,12 +287,12 @@ export default async function Dashboard() {
       </section>
 
       <section className={card}>
-        <h2 className="mb-2 font-medium">คำขอตามประเภท</h2>
+        <h2 className="mb-2 font-semibold">คำขอตามประเภท</h2>
         <table className="w-full max-w-md text-sm">
           <thead className="text-left text-xs opacity-60"><tr><th className="py-1">ประเภท</th><th className="text-right">สัปดาห์นี้</th><th className="text-right">เดือนนี้</th></tr></thead>
           <tbody>
             {d.by_type.map((t) => (
-              <tr key={t.type} className="border-t border-black/5 dark:border-white/10">
+              <tr key={t.type} className="border-t border-[var(--line)]">
                 <td className="py-1.5">{t.type}</td><td className="text-right tabular-nums">{t.week}</td><td className="text-right tabular-nums">{t.month}</td>
               </tr>
             ))}

@@ -2,7 +2,7 @@
 
 export default function PrintButton() {
   return (
-    <button onClick={() => window.print()} className="rounded-md bg-foreground px-4 py-2 text-sm text-background">
+    <button onClick={() => window.print()} className="btn btn-primary">
       พิมพ์
     </button>
   );

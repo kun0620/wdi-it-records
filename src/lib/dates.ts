@@ -25,3 +25,9 @@ export function nowHHMM(): string {
 export function daysBetween(a: string, b: string): number {
   return Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
 }
+
+// yyyy-mm-dd -> "วันศุกร์ที่ 3 ตุลาคม 2569" (Thai long date, Buddhist year)
+export function longThaiDate(s: string): string {
+  return new Intl.DateTimeFormat("th-TH", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
+    .format(new Date(`${s}T00:00:00Z`));
+}

@@ -14,8 +14,8 @@ export default async function NewServicePage(props: PageProps<"/service/new">) {
   const asset = assets.find((a) => a.id === Number(pick("asset"))) ?? null;
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-4 px-4 py-6">
-      <h1 className="text-lg font-semibold">เพิ่มคำขอ / แจ้งปัญหา</h1>
+    <main className="mx-auto w-full max-w-5xl space-y-4 px-3 py-4 sm:px-6 sm:py-6">
+      <h1 className="text-xl font-bold sm:text-2xl">เพิ่มคำขอ / แจ้งปัญหา</h1>
       <ServiceForm
         rec={{
           type: pick("type"), system: pick("system"), detail: pick("detail"),
