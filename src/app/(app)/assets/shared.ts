@@ -56,3 +56,15 @@ export const CATEGORY_SUGGESTIONS = [
   "Network - Access Switch (PoE)", "Network - Core Switch", "Network - Firewall", "Network - NVR",
   "Network - SD-WAN Router", "Access Control - Face Recognition", "NAS", "UPS", "Monitor",
 ];
+
+// Mirror of it.asset_prefix(category) in the DB.
+export function prefixOf(category: string | null | undefined): string {
+  const c = (category ?? "").toLowerCase();
+  if (c.startsWith("desktop")) return "PC";
+  if (c.startsWith("laptop") || c.startsWith("notebook")) return "NB";
+  if (/nvr|cctv|camera/.test(c)) return "CA";
+  if (c.startsWith("network")) return "NW";
+  if (c.startsWith("printer")) return "PR";
+  if (c.startsWith("access control")) return "AC";
+  return "OT";
+}

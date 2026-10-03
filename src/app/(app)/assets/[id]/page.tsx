@@ -4,7 +4,8 @@ import { getSession } from "@/lib/supabase/server";
 import { getLists, getPositions } from "@/lib/lists";
 import { thDate, todayISO } from "@/lib/dates";
 import AssetForm from "../AssetForm";
-import { statusOf, type AssetRow } from "../shared";
+import { prefixOf, statusOf, type AssetRow } from "../shared";
+import { retagAsset } from "../actions";
 import { PRIORITY_TONE, STATUS_TONE } from "../../service/shared";
 
 type Audit = { id: number; at: string; actor: string | null; op: string; changed: Record<string, [unknown, unknown]> | null };
@@ -45,6 +46,13 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
           </Link>
         )}
       </div>
+      {rec.asset_tag && !rec.asset_tag.startsWith(`WDI-${prefixOf(rec.category)}-`) && (
+        <form action={retagAsset} className="flex flex-wrap items-center gap-3 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
+          <input type="hidden" name="id" value={rec.id} />
+          <span>แท็ก {rec.asset_tag} ไม่ตรงกับประเภท “{rec.category}” (ควรขึ้นต้น WDI-{prefixOf(rec.category)}-)</span>
+          {role === "editor" && <button className="rounded-md bg-foreground px-3 py-1 text-background">ออกแท็กใหม่ตามประเภท</button>}
+        </form>
+      )}
       {sp.handover && (
         <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-900 dark:bg-green-950 dark:text-green-100">
           บันทึก{sp.handover === "Issue" ? "ส่งมอบ" : "รับคืน"}แล้ว — สถานะและผู้ใช้อัปเดตให้อัตโนมัติ

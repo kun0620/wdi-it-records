@@ -53,3 +53,13 @@ export async function saveAsset(_prev: SaveState, formData: FormData): Promise<S
   revalidatePath("/");
   redirect(`/assets/${savedId}?saved=1`);
 }
+
+// New tag from the asset's current category (when the category changed after tagging). Old tag stays in the audit log.
+export async function retagAsset(formData: FormData) {
+  const id = Number(formData.get("id"));
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("retag_asset", { asset: id });
+  if (error) throw new Error(error.message);
+  revalidatePath("/assets");
+  redirect(`/assets/${id}?saved=1`);
+}
