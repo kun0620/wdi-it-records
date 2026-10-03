@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  ChevronDown, ChevronUp, Columns3, FileSpreadsheet, LayoutGrid, MapPin, Plus, QrCode, Rows3, Search,
+  ChevronDown, ChevronUp, Columns3, LayoutGrid, MapPin, Plus, QrCode, Rows3, Search,
 } from "lucide-react";
 import { getSession } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/dates";
@@ -8,6 +8,7 @@ import { ACTIVE, WARRANTY_DAYS } from "@/lib/asset-health";
 import AssetIcon, { KIND_ICON } from "./AssetIcon";
 import AssetRowLink from "./AssetRowLink";
 import ScrollTable from "./ScrollTable";
+import ExportDialog from "./ExportDialog";
 import { ASSET_STATUSES, PREFIXES, STATUS_TONE, shortCategory, statusOf, type AssetRow } from "./shared";
 
 const TYPE_EN: Record<string, string> = { PC: "Desktop", NB: "Laptop", NW: "Network", CA: "Camera/NVR", PR: "Printer", AC: "Face scan", OT: "Other" };
@@ -130,40 +131,6 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
     </ScrollTable>
   );
 
-  const exportPanel = (
-    <details className="relative">
-      <summary className="btn btn-secondary w-full list-none max-sm:!h-9 max-sm:!px-3 max-sm:!text-[13px] [&::-webkit-details-marker]:hidden">
-        <FileSpreadsheet className="size-4" />Export Excel
-      </summary>
-      <form action="/assets/export" method="get" className="card absolute right-0 z-30 mt-2 w-[min(92vw,420px)] space-y-3 !p-4" style={{ boxShadow: "var(--shadow2)" }}>
-        <div className="h3">Export Excel</div>
-        <fieldset>
-          <legend className="micro mb-2">ประเภท · ไม่เลือก = ทั้งหมด</legend>
-          <div className="flex flex-wrap gap-x-4 gap-y-2">
-            {PREFIXES.map((p) => (
-              <label key={p.p} className="flex items-center gap-1.5 text-sm">
-                <input type="checkbox" name="type" value={p.p} defaultChecked={type === p.p} className="size-4 accent-[var(--accent)]" />
-                {p.p} {TYPE_EN[p.p]}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend className="micro mb-2">สถานะ · ไม่เลือก = ทั้งหมด</legend>
-          <div className="flex flex-wrap gap-x-4 gap-y-2">
-            {ASSET_STATUSES.map((s) => (
-              <label key={s.v} className="flex items-center gap-1.5 text-sm">
-                <input type="checkbox" name="status" value={s.v} defaultChecked={status === s.v} className="size-4 accent-[var(--accent)]" />{s.th}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-        {q && <input type="hidden" name="q" value={q} />}
-        <button className="btn btn-primary btn-block"><FileSpreadsheet className="size-4" />ดาวน์โหลด .xlsx</button>
-        {q && <p className="ihint">ใช้คำค้นหา “{q}” ด้วย</p>}
-      </form>
-    </details>
-  );
 
   return (
     <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-3 py-3 sm:gap-4 sm:px-5 sm:py-5 lg:px-7">
@@ -187,7 +154,7 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
             <Link href={`/assets/labels?${new URLSearchParams({ type, status })}`} className="btn btn-secondary max-sm:!h-9 max-sm:!px-3 max-sm:!text-[13px]">
               <QrCode className="size-4" />พิมพ์ป้าย QR
             </Link>
-            {exportPanel}
+            <ExportDialog assets={all ?? []} today={todayISO()} q={q} initialType={type} initialStatus={status} />
           </div>
           {role === "editor" && <Link href="/assets/new" className="btn btn-primary hidden sm:inline-flex"><Plus className="size-4" />เพิ่ม</Link>}
         </div>
