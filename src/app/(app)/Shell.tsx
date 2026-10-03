@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  ArrowLeftRight, Boxes, CalendarRange, ClipboardCheck, ShieldCheck, FileSpreadsheet, LayoutDashboard, LogOut, Menu, Moon, Search, Sun, Wrench, X,
+  ArrowLeftRight, Boxes, CalendarRange, ClipboardCheck, FileText, ShieldCheck, FileSpreadsheet, LayoutDashboard, LogOut, Menu, Moon, Search, Sun, Wrench, X,
 } from "lucide-react";
 
 export type ShellInfo = { openService: number; daily: { done: number; ng: number } | null };
@@ -17,6 +17,7 @@ const NAV = [
   { href: "/service", label: "คำขอ/ปัญหา", icon: Wrench, badge: "service" as const },
   { href: "/assets", label: "ทรัพย์สิน", icon: Boxes },
   { href: "/handover", label: "รับ-คืน", icon: ArrowLeftRight },
+  { href: "/documents", label: "เอกสาร", icon: FileText },
   { href: "/exports", label: "Export", icon: FileSpreadsheet },
 ];
 
