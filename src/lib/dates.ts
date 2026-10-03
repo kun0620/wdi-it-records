@@ -49,3 +49,17 @@ export function isoWeek(s: string): number {
   const yearStart = Date.UTC(d.getUTCFullYear(), 0, 1);
   return Math.ceil(((d.getTime() - yearStart) / 864e5 + 1) / 7);
 }
+
+// Monday (yyyy-mm-dd) of the ISO week containing a date
+export function mondayOf(s: string): string {
+  const d = new Date(`${s}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d.toISOString().slice(0, 10);
+}
+
+// yyyy-mm-dd + n days
+export function addDays(s: string, n: number): string {
+  const d = new Date(`${s}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  ArrowLeftRight, Boxes, ClipboardCheck, FileSpreadsheet, LayoutDashboard, LogOut, Menu, Moon, Search, Sun, Wrench, X,
+  ArrowLeftRight, Boxes, CalendarRange, ClipboardCheck, ShieldCheck, FileSpreadsheet, LayoutDashboard, LogOut, Menu, Moon, Search, Sun, Wrench, X,
 } from "lucide-react";
 
 export type ShellInfo = { openService: number; daily: { done: number; ng: number } | null };
@@ -12,6 +12,8 @@ export type ShellInfo = { openService: number; daily: { done: number; ng: number
 const NAV = [
   { href: "/", label: "ภาพรวม", icon: LayoutDashboard },
   { href: "/daily", label: "เช็ครายวัน", icon: ClipboardCheck },
+  { href: "/weekly", label: "เช็ครายสัปดาห์", icon: CalendarRange },
+  { href: "/maintenance", label: "บำรุงรักษา", icon: ShieldCheck },
   { href: "/service", label: "คำขอ/ปัญหา", icon: Wrench, badge: "service" as const },
   { href: "/assets", label: "ทรัพย์สิน", icon: Boxes },
   { href: "/handover", label: "รับ-คืน", icon: ArrowLeftRight },

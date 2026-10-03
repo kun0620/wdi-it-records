@@ -212,7 +212,7 @@ export default async function Dashboard() {
             <span><i style={{ background: "var(--empty)" }} />วันหยุด</span>
           </div>
           <p className="small muted mt-3">
-            Weekly check สัปดาห์นี้: {ck.weekly_done ? "ทำแล้ว" : "ยังไม่ทำ"} · Backup ล่าสุด: {ck.latest_backup ?? "–"}
+            <Link href="/weekly" className="link !text-[12.5px]">Weekly check สัปดาห์นี้: {ck.weekly_done ? "ทำแล้ว" : "ยังไม่ทำ"}</Link> · Backup ล่าสุด: {ck.latest_backup ?? "–"}
             {ck.lowest_disk != null && ` · ดิสก์ว่างต่ำสุด ${ck.lowest_disk}%`}
           </p>
         </section>
@@ -244,7 +244,10 @@ export default async function Dashboard() {
         </section>
 
         <section className="card">
-          <div className="card-h"><h2 className="h2">สถานะ Maintenance</h2></div>
+          <div className="card-h">
+            <h2 className="h2">สถานะ Maintenance</h2>
+            <Link className="link" href="/maintenance">เปิด<ChevronRight className="size-4" /></Link>
+          </div>
           <div className="overflow-x-auto">
             <table className="tbl plain">
               <thead><tr><th>ประเภท</th><th>ผ่านล่าสุด</th><th>ครบกำหนด</th><th>สถานะ</th></tr></thead>
