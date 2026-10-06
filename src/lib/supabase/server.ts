@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 // Server-side Supabase client bound to the signed-in user's session cookie.
 // All queries go to schema "it"; RLS decides what this user may read or write.
@@ -31,10 +32,13 @@ export async function createClient() {
 export type Role = "editor" | "viewer" | null;
 
 // Current user + their role in it.members (null role = signed in but not a member).
-export async function getSession() {
+// cache(): the layout and the page of one request share a single lookup.
+// getClaims() verifies the session JWT locally (no Auth round trip when the project uses asymmetric keys).
+export const getSession = cache(async () => {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { supabase, user: null, role: null as Role };
-  const { data } = await supabase.rpc("my_role");
-  return { supabase, user, role: (data ?? null) as Role };
-}
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (!claims?.sub) return { supabase, user: null, role: null as Role };
+  const { data: role } = await supabase.rpc("my_role");
+  return { supabase, user: { id: claims.sub, email: (claims.email as string | undefined) ?? "" }, role: (role ?? null) as Role };
+});
