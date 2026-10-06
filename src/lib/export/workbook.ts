@@ -20,7 +20,7 @@ const SHEETS: SheetDef[] = [
   {
     name: "Service_Log", table: "service_log_v", order: "id",
     title: "Service Log – บันทึกคำขอ / แจ้งปัญหา / เหตุขัดข้อง · IT服务记录",
-    note: "เลขที่คำขอ = เลขบนใบ WDIT-F-IT-01 (SR-YYYY-###) · ชั่วโมง = เวลาตามปฏิทิน (calendar hours)",
+    note: "เลขที่คำขอ = เลขบนใบ WDI-F-18-001 (SR-YYYY-###) · ชั่วโมง = เวลาตามปฏิทิน (calendar hours)",
     cols: [
       { h: "Request No.\nเลขที่คำขอ\n申请编号", k: "req_no", w: 14 },
       { h: "Date\nวันที่แจ้ง\n日期", k: "req_date", w: 11, t: "date" },
