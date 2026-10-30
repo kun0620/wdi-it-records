@@ -19,4 +19,9 @@ export type DailyRow = {
   checker: string;
   complete: number;
   ng_count: number;
+  created_at: string;
 } & Record<CheckKey, CheckResult | null>;
+
+// Saved on a later day than the check date (forgot to record on the day) — shown as "บันทึกย้อนหลัง".
+export const recordedLate = (r: Pick<DailyRow, "check_date" | "created_at">) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Bangkok" }).format(new Date(r.created_at)) > r.check_date;

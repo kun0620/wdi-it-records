@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/supabase/server";
 import { isISODate, shortThaiDate, todayISO } from "@/lib/dates";
-import type { DailyRow } from "./checks";
+import { recordedLate, type DailyRow } from "./checks";
 import DailyForm from "./DailyForm";
 
 const DOW = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
@@ -47,7 +47,10 @@ export default async function DailyPage(props: PageProps<"/daily">) {
             {rows.map((r) => (
               <Link key={r.check_date} href={`/daily?date=${r.check_date}`} className="li" style={{ padding: "10px 0" }}>
                 <div style={{ width: 44 }} className="small muted">{DOW[new Date(`${r.check_date}T00:00:00Z`).getUTCDay()]}</div>
-                <div className="flex-1" style={{ fontWeight: 600 }}>{shortThaiDate(r.check_date)}</div>
+                <div className="flex-1" style={{ fontWeight: 600 }}>
+                  {shortThaiDate(r.check_date)}
+                  {recordedLate(r) && <span className="small muted" style={{ fontWeight: 500 }}> · บันทึกย้อนหลัง</span>}
+                </div>
                 {r.ng_count > 0
                   ? <span className="pill sm t-bad">NG {r.ng_count} ข้อ</span>
                   : r.complete === 1 ? <span className="pill sm t-ok">✓ ครบ 7/7</span> : <span className="pill sm t-warn">ไม่ครบ</span>}

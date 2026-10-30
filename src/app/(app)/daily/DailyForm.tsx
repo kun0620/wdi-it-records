@@ -7,7 +7,7 @@ import {
   CalendarDays, Cctv, Check, CheckCheck, ChevronRight, Globe, Network, Shield, TriangleAlert, Wifi, Zap, type LucideIcon,
 } from "lucide-react";
 import { longThaiDate, thDate } from "@/lib/dates";
-import { CHECKS, RESULTS, type CheckKey, type CheckResult, type DailyRow } from "./checks";
+import { CHECKS, RESULTS, recordedLate, type CheckKey, type CheckResult, type DailyRow } from "./checks";
 import { saveDaily, type SaveState } from "./actions";
 import { CHECK_SYSTEM } from "../service/shared";
 
@@ -79,7 +79,12 @@ export default function DailyForm({ date, today, existing, defaultChecker, users
           <i style={{ width: `${(done / 7) * 100}%` }} />
         </div>
         {existing && (
-          <p className="small muted mt-2">มีบันทึกของ {thDate(date)} แล้ว — บันทึกอีกครั้งจะแก้รายการเดิม (ประวัติถูกเก็บไว้)</p>
+          <p className="small muted mt-2">
+            มีบันทึกของ {thDate(date)} แล้ว{recordedLate(existing) && " (บันทึกย้อนหลัง)"} — บันทึกอีกครั้งจะแก้รายการเดิม (ประวัติถูกเก็บไว้)
+          </p>
+        )}
+        {!existing && date < today && (
+          <p className="banner warn small mt-2">บันทึกย้อนหลังของ {thDate(date)} — ใส่ผลที่ตรวจจริงในวันนั้น รายการนี้จะแสดงว่า “บันทึกย้อนหลัง”</p>
         )}
       </section>
 
