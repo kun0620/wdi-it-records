@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/supabase/server";
-import { isISODate, shortThaiDate, todayISO } from "@/lib/dates";
+import { FileSpreadsheet } from "lucide-react";
+import { addDays, isISODate, isoWeek, mondayOf, shortThaiDate, todayISO } from "@/lib/dates";
 import { recordedLate, type DailyRow } from "./checks";
 import DailyForm from "./DailyForm";
 
@@ -22,6 +23,7 @@ export default async function DailyPage(props: PageProps<"/daily">) {
     const { data } = await supabase.from("daily_check").select("*").eq("check_date", date).maybeSingle();
     existing = (data as DailyRow | null) ?? null;
   }
+  const thisMon = mondayOf(today);
   const full = rows.filter((r) => r.complete === 1 && !r.ng_count).length;
   const ng = rows.filter((r) => r.ng_count > 0).length;
 
@@ -36,6 +38,21 @@ export default async function DailyPage(props: PageProps<"/daily">) {
         users={(users ?? []).map((u) => u.value)}
         canEdit={role === "editor"}
       />
+
+      <section className="card !p-4">
+        <div className="card-h">
+          <h2 className="h3">รีพอทประจำสัปดาห์</h2>
+          <span className="small muted">Excel · จ.–อา. ของสัปดาห์</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {[thisMon, addDays(thisMon, -7)].map((m, i) => (
+            <a key={m} href={`/daily/report?week=${m}`} className={`btn ${i === 0 ? "btn-primary" : "btn-secondary"}`}>
+              <FileSpreadsheet className="size-4" />
+              {i === 0 ? "สัปดาห์นี้" : "สัปดาห์ก่อน"} · W{isoWeek(m)} ({shortThaiDate(m)} – {shortThaiDate(addDays(m, 6))})
+            </a>
+          ))}
+        </div>
+      </section>
 
       <section className="card !p-4">
         <div className="card-h">
