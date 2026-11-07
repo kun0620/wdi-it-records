@@ -74,7 +74,7 @@ export default async function AssetPage(props: PageProps<"/assets/[id]">) {
           </div>
         </section>
 
-        {rec.asset_tag && !rec.asset_tag.startsWith(`WDI-${prefixOf(rec.category)}-`) && (
+        {rec.asset_tag?.startsWith("WDI-") && !rec.asset_tag.startsWith(`WDI-${prefixOf(rec.category)}-`) && (
           <form action={retagAsset} className="banner warn flex-wrap">
             <input type="hidden" name="id" value={rec.id} />
             <span className="small">แท็ก {rec.asset_tag} ไม่ตรงกับประเภท “{rec.category}” (ควรขึ้นต้น WDI-{prefixOf(rec.category)}-)</span>

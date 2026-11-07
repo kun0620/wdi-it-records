@@ -9,7 +9,7 @@ import AssetIcon, { KIND_ICON } from "./AssetIcon";
 import AssetRowLink from "./AssetRowLink";
 import ScrollTable from "./ScrollTable";
 import ExportDialog from "./ExportDialog";
-import { ASSET_STATUSES, PREFIXES, STATUS_TONE, shortCategory, statusOf, type AssetRow } from "./shared";
+import { ASSET_STATUSES, PREFIXES, STATUS_TONE, prefixOf, shortCategory, statusOf, type AssetRow } from "./shared";
 
 const TYPE_EN: Record<string, string> = { PC: "Desktop", NB: "Laptop", NW: "Network", CA: "Camera/NVR", PR: "Printer", AC: "Face scan", OT: "Other" };
 
@@ -68,16 +68,16 @@ export default async function AssetListPage(props: PageProps<"/assets">) {
   else if (missing || warranty) query = query.in("status", ACTIVE);
   if (missing) query = query.or("serial.is.null,serial.eq.");
   if (warranty) query = query.lte("warranty_end", new Date(Date.parse(todayISO()) + WARRANTY_DAYS * 864e5).toISOString().slice(0, 10));
-  if (type) query = query.like("asset_tag", `WDI-${type}-%`);
   if (q) {
     const like = `%${q.replace(/[%_,()]/g, " ")}%`;
     query = query.or(["asset_tag", "serial", "name", "model", "user_name", "position", "department", "location", "ip_address", "mac"]
       .map((c) => `${c}.ilike.${like}`).join(","));
   }
-  const [{ data, error }, { data: all }] = await Promise.all([query, supabase.from("assets").select("asset_tag, status")]);
-  const rows = (data ?? []) as AssetRow[];
-  const typeCount = (p: string) => (all ?? []).filter((a) => a.asset_tag?.startsWith(`WDI-${p}-`)).length;
-  const statusCount = (s: string) => (all ?? []).filter((a) => a.status === s && (!type || a.asset_tag?.startsWith(`WDI-${type}-`))).length;
+  const [{ data, error }, { data: all }] = await Promise.all([query, supabase.from("assets").select("category, status")]);
+  // type = category prefix (filtered here; tags may be accounting codes)
+  const rows = ((data ?? []) as AssetRow[]).filter((r) => !type || prefixOf(r.category) === type);
+  const typeCount = (p: string) => (all ?? []).filter((a) => prefixOf(a.category) === p).length;
+  const statusCount = (s: string) => (all ?? []).filter((a) => a.status === s && (!type || prefixOf(a.category) === type)).length;
   const dash = <span className="muted">—</span>;
 
   const cell = (r: AssetRow, key: ColKey) => {

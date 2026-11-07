@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
 import { getSession } from "@/lib/supabase/server";
 import { appBaseUrl, isLocalUrl } from "@/lib/app-url";
-import { ASSET_STATUSES, PREFIXES, type AssetRow } from "../shared";
+import { ASSET_STATUSES, PREFIXES, prefixOf, type AssetRow } from "../shared";
 import PrintButton from "./PrintButton";
 
 // A4 sticker sheet: 3 x 8 labels of 70 x 37 mm (common "24 per sheet" stock, no page margin).
@@ -19,12 +19,12 @@ export default async function LabelsPage(props: PageProps<"/assets/labels">) {
   let query = supabase.from("assets").select("*").not("asset_tag", "is", null).order("asset_tag");
   if (ids.length) query = query.in("id", ids);
   else {
-    if (type) query = query.like("asset_tag", `WDI-${type}-%`);
     if (status) query = query.eq("status", status);
     else query = query.not("status", "in", "(Retired,Lost,Planned,Waiting)");
   }
   const { data } = await query;
-  const rows = (data ?? []) as Pick<AssetRow, "id" | "asset_tag" | "model" | "manufacturer" | "name" | "category" | "serial">[];
+  const rows = ((data ?? []) as Pick<AssetRow, "id" | "asset_tag" | "model" | "manufacturer" | "name" | "category" | "serial">[])
+    .filter((r) => ids.length || !type || prefixOf(r.category) === type);
 
   const base = await appBaseUrl();
   const labels = await Promise.all(rows.map(async (r) => ({

@@ -133,7 +133,7 @@ const SHEETS: SheetDef[] = [
   {
     name: "Assets", table: "assets", order: "asset_tag",
     title: "IT Assets – ทะเบียนทรัพย์สิน IT · IT资产清单",
-    note: "Asset Tag = WDI-<ประเภท>-#### ออกโดยระบบ · ลบไม่ได้ (เลิกใช้ = สถานะ Retired) · Source = ชีตต้นทางในไฟล์เดิม (ว่าง = เพิ่มในระบบ)",
+    note: "Asset Tag = รหัสทรัพย์สินบัญชี (WDICN-/WDITH-) หรือ WDI-<ประเภท>-#### ออกโดยระบบ · ลบไม่ได้ (เลิกใช้ = สถานะ Retired) · Source = ชีตต้นทางในไฟล์เดิม (ว่าง = เพิ่มในระบบ)",
     cols: [
       { h: "Asset Tag\nรหัสทรัพย์สิน", k: "asset_tag", w: 14 },
       { h: "Status\nสถานะ", k: "status", w: 10 },

@@ -37,9 +37,12 @@ export type AssetStatus = (typeof ASSET_STATUSES)[number]["v"];
 export const isComputer = (category?: string | null, tag?: string | null) =>
   /^WDI-(PC|NB)-/.test(tag ?? "") || /^(desktop|laptop|notebook)/i.test(category ?? "");
 
+// Asset tag pattern: accounting codes (WDICN-L001, WDITH-D001) or system tags (WDI-NB-0011).
+export const TAG_RE = /^[A-Z0-9][A-Z0-9-]{2,29}$/;
+
 export const statusOf = (v: string) => ASSET_STATUSES.find((s) => s.v === v);
 
-// Tag prefix groups (mirror of it.asset_prefix in the DB) — used for the type filter.
+// Type groups by category prefix (mirror of it.asset_prefix in the DB) — used for the type filter.
 export const PREFIXES = [
   { p: "PC", th: "Desktop" },
   { p: "NB", th: "Laptop" },

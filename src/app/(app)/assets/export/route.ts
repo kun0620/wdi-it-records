@@ -2,7 +2,7 @@ import ExcelJS from "exceljs";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSession } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/dates";
-import { ASSET_STATUSES, PREFIXES, statusOf, type AssetRow } from "../shared";
+import { ASSET_STATUSES, PREFIXES, prefixOf, statusOf, type AssetRow } from "../shared";
 
 // Asset register as a real Excel Table (header filters, banded rows, totals),
 // plus a type × status summary and the handover history.
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
   ]);
   if (error) return new NextResponse(error.message, { status: 500 });
   // type = tag prefix; filtered here so it combines cleanly with the search's OR filter
-  const rows = ((data ?? []) as AssetRow[]).filter((r) => !types.length || types.some((t) => r.asset_tag?.startsWith(`WDI-${t}-`)));
+  const rows = ((data ?? []) as AssetRow[]).filter((r) => !types.length || types.includes(prefixOf(r.category)));
   const ids = new Set(rows.map((r) => r.id));
   const handovers = (ho ?? []).filter((h) => ids.has(h.asset_id));
   const today = todayISO();
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
   const allStatuses = ASSET_STATUSES.map((s) => s.v);
   const groups = types.length ? PREFIXES.filter((p) => types.includes(p.p)) : [...PREFIXES, { p: "", th: "ยังไม่มีแท็ก" }];
   const count = (p: string, s: string) =>
-    rows.filter((r) => r.status === s && (p ? r.asset_tag?.startsWith(`WDI-${p}-`) : !r.asset_tag)).length;
+    rows.filter((r) => r.status === s && (p ? r.asset_tag && prefixOf(r.category) === p : !r.asset_tag)).length;
   sum.columns = [{ width: 22 }, ...allStatuses.map(() => ({ width: 12 })), { width: 10 }];
   sum.addTable({
     name: "Summary",

@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import { HardDrive, Lock, MapPin, Network, NotebookPen, Receipt } from "lucide-react";
+import { HardDrive, MapPin, Network, NotebookPen, Receipt } from "lucide-react";
 import { saveAsset, type SaveState } from "./actions";
 import { ASSET_STATUSES, CATEGORY_SUGGESTIONS, isComputer, type AssetRow } from "./shared";
 
@@ -55,11 +55,9 @@ export default function AssetForm({ rec, users, depts, positions = [], canEdit, 
       </div>
 
       <Section icon={HardDrive} title="ข้อมูลเครื่อง">
-        <Field id="f-tag" label="แท็ก" hint="สร้างอัตโนมัติ แก้ไขไม่ได้">
-          <div className="iwrap">
-            <input id="f-tag" readOnly value={rec.asset_tag ?? "ออกเลขอัตโนมัติเมื่อบันทึก"} className="input ro mono pr" />
-            <Lock className="ic suffix size-4" />
-          </div>
+        <Field id="f-tag" label="แท็ก" hint="รหัสทรัพย์สินบัญชี เช่น WDITH-D001 · เว้นว่าง = ออกเลข WDI- อัตโนมัติ">
+          <input id="f-tag" name="asset_tag" defaultValue={rec.asset_tag ?? ""} readOnly={ro} placeholder="ออกเลขอัตโนมัติเมื่อบันทึก"
+            autoComplete="off" autoCapitalize="characters" className="input mono" />
         </Field>
         <Field id="f-status" label="สถานะ" req>
           <select id="f-status" name="status" defaultValue={rec.status ?? "In Stock"} disabled={ro} className="input">

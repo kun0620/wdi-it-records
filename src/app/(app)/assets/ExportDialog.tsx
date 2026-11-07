@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { Check, FileSpreadsheet, X } from "lucide-react";
 import { KIND_ICON } from "./AssetIcon";
-import { ASSET_STATUSES, PREFIXES, STATUS_TONE } from "./shared";
+import { ASSET_STATUSES, PREFIXES, STATUS_TONE, prefixOf } from "./shared";
 
 const TYPE_EN: Record<string, string> = { PC: "Desktop", NB: "Laptop", NW: "Network", CA: "Camera/NVR", PR: "Printer", AC: "Face scan", OT: "Other" };
 
 type Props = {
-  assets: { asset_tag: string | null; status: string }[];   // every asset, for the live counts
+  assets: { category: string | null; status: string }[];   // every asset, for the live counts
   today: string;
   q: string;                                                  // current search, passed through to the export
   initialType: string;
@@ -30,10 +30,9 @@ export default function ExportDialog({ assets, today, q, initialType, initialSta
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
   }, [open]);
 
-  const prefix = (tag: string | null) => tag?.match(/^WDI-([A-Z]+)-/)?.[1] ?? "";
-  const typeN = (p: string) => assets.filter((a) => prefix(a.asset_tag) === p).length;
-  const statusN = (s: string) => assets.filter((a) => a.status === s && (!types.length || types.includes(prefix(a.asset_tag)))).length;
-  const count = assets.filter((a) => (!types.length || types.includes(prefix(a.asset_tag))) && (!statuses.length || statuses.includes(a.status))).length;
+  const typeN = (p: string) => assets.filter((a) => prefixOf(a.category) === p).length;
+  const statusN = (s: string) => assets.filter((a) => a.status === s && (!types.length || types.includes(prefixOf(a.category)))).length;
+  const count = assets.filter((a) => (!types.length || types.includes(prefixOf(a.category))) && (!statuses.length || statuses.includes(a.status))).length;
   const file = `WDI-Assets_${today}${types.length ? `_${types.join("-")}` : ""}${statuses.length ? `_${statuses.map((s) => s.replace(/\s+/g, "")).join("-")}` : ""}.xlsx`;
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 

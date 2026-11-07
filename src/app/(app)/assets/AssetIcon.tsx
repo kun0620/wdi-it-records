@@ -1,13 +1,13 @@
 import { Cctv, Laptop, Monitor, Network, Package, Printer, ScanFace, type LucideIcon } from "lucide-react";
 import { prefixOf } from "./shared";
 
-// Kind of machine at a glance (design "kchip"): icon by tag prefix, or by category when untagged.
+// Kind of machine at a glance (design "kchip"): icon by category, or by a WDI- tag when there is no category.
 export const KIND_ICON: Record<string, LucideIcon> = {
   PC: Monitor, NB: Laptop, NW: Network, CA: Cctv, PR: Printer, AC: ScanFace, OT: Package,
 };
 
 export function kindOf(tag: string | null, category: string | null) {
-  return tag?.match(/^WDI-([A-Z]+)-/)?.[1] ?? prefixOf(category);
+  return category ? prefixOf(category) : tag?.match(/^WDI-([A-Z]+)-/)?.[1] ?? "OT";
 }
 
 export default function AssetIcon({ tag, category, size = "md" }: { tag: string | null; category: string | null; size?: "sm" | "md" | "lg" }) {
