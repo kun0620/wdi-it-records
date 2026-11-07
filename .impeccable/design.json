@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-07T00:00:00+07:00",
+  "title": "Design System: WDI IT Records",
+  "extensions": {
+    "colorMeta": {
+      "signal-blue": { "role": "primary", "displayName": "Signal Blue", "canonical": "#2A78D6", "tonalRamp": ["#0B2547", "#123A6E", "#1A5CAE", "#2A78D6", "#5A97E2", "#8DB8EC", "#C4DAF6", "#E7F0FC"] },
+      "control-navy": { "role": "secondary", "displayName": "Control Navy", "canonical": "#0F2A44", "tonalRamp": ["#07111C", "#0F2A44", "#1A3D60", "#1F4E78", "#2D649A", "#5B86B3", "#93ABC5", "#E3ECF6"] },
+      "ground": { "role": "neutral", "displayName": "Cool Ground", "canonical": "#F3F5F9", "tonalRamp": ["#0E1C2B", "#3B4B5F", "#5A6A7E", "#C9D3DF", "#E2E8F0", "#EDF1F6", "#F3F5F9", "#FFFFFF"] },
+      "ok": { "role": "status", "displayName": "OK Green", "canonical": "#22A05B", "tonalRamp": ["#0C3D22", "#13683A", "#1E8E50", "#22A05B", "#4FBB7E", "#86D3A6", "#BDE8CE", "#E3F4EA"] },
+      "bad": { "role": "status", "displayName": "NG Red", "canonical": "#D63A3A", "tonalRamp": ["#4A0F0F", "#7A1919", "#AE2121", "#C93030", "#D63A3A", "#E77B7B", "#F3B5B5", "#FCE4E4"] },
+      "warn": { "role": "status", "displayName": "Due Amber", "canonical": "#E3A512", "tonalRamp": ["#3D2A00", "#5E4000", "#7E5100", "#B47D08", "#E3A512", "#EEC45A", "#F6DE9C", "#FCF1D3"] }
+    },
+    "typographyMeta": {
+      "page-title": { "displayName": "Page title", "purpose": "One per page, in the header bar." },
+      "kpi-number": { "displayName": "KPI number", "purpose": "Dashboard figures with a small unit suffix." },
+      "code": { "displayName": "Code", "purpose": "SR numbers, asset tags, serials, IPs, priority badges." }
+    },
+    "shadows": [
+      { "name": "card-rest", "value": "0 1px 2px rgba(15,42,68,.05), 0 4px 14px rgba(15,42,68,.06)", "purpose": "Cards and KPI tiles in light theme." },
+      { "name": "overlay", "value": "0 12px 32px rgba(15,42,68,.16)", "purpose": "Dialogs, drawer, menus over the scrim." },
+      { "name": "focus-ring", "value": "0 0 0 3px #E7F0FC", "purpose": "Focused inputs with a blue border." }
+    ],
+    "motion": [],
+    "breakpoints": [
+      { "name": "sm", "value": "640px", "purpose": "Icon rail replaces the phone top bar." },
+      { "name": "lg", "value": "1024px", "purpose": "Full sidebar and page header." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button", "kind": "button", "refersTo": "button-primary",
+      "description": "The one filled action per task.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">บันทึก</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:10px;border:1px solid transparent;font:600 14px 'IBM Plex Sans Thai',system-ui,sans-serif;cursor:pointer;transition:background .15s}.ds-btn-primary{background:#2A78D6;color:#fff}.ds-btn-primary:hover{background:#1F66BD}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px #E7F0FC,0 0 0 4px #2A78D6}"
+    },
+    {
+      "name": "Secondary Button", "kind": "button", "refersTo": "button-secondary",
+      "description": "Every other action beside the primary.",
+      "html": "<button class=\"ds-btn2\">ยกเลิก</button>",
+      "css": ".ds-btn2{height:40px;padding:0 16px;border-radius:10px;border:1px solid #C9D3DF;background:#fff;color:#0E1C2B;font:600 14px 'IBM Plex Sans Thai',system-ui,sans-serif;cursor:pointer}.ds-btn2:hover{background:#EAF2FC}.ds-btn2:focus-visible{outline:none;box-shadow:0 0 0 3px #E7F0FC;border-color:#2A78D6}"
+    },
+    {
+      "name": "Text Input", "kind": "input", "refersTo": "input",
+      "description": "42px field with blue focus ring.",
+      "html": "<label class=\"ds-field\"><span>ผู้แจ้ง</span><input class=\"ds-input\" placeholder=\"ชื่อผู้แจ้ง\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;font:600 12.5px 'IBM Plex Sans Thai',system-ui,sans-serif;color:#3B4B5F}.ds-input{height:42px;border-radius:10px;border:1px solid #C9D3DF;background:#fff;padding:0 12px;font:400 14px 'IBM Plex Sans Thai',system-ui,sans-serif;color:#0E1C2B;outline:none}.ds-input:focus{border-color:#2A78D6;box-shadow:0 0 0 3px #E7F0FC}"
+    },
+    {
+      "name": "Status Pill", "kind": "chip", "refersTo": "chip-filter",
+      "description": "Tinted pair with a dot; meaning only.",
+      "html": "<span class=\"ds-pill ds-ok\">ใช้งาน</span> <span class=\"ds-pill ds-bad\">เสีย</span>",
+      "css": ".ds-pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font:600 12px 'IBM Plex Sans Thai',system-ui,sans-serif}.ds-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}.ds-ok{background:#E3F4EA;color:#13683A}.ds-bad{background:#FCE4E4;color:#AE2121}"
+    },
+    {
+      "name": "Priority Badge", "kind": "chip", "refersTo": "priority-p1",
+      "description": "Solid P1-P4 badge in mono.",
+      "html": "<span class=\"ds-prio\" style=\"background:#C62828\">P1</span> <span class=\"ds-prio\" style=\"background:#2563B5\">P3</span>",
+      "css": ".ds-prio{display:inline-flex;align-items:center;justify-content:center;height:22px;min-width:30px;padding:0 7px;border-radius:6px;color:#fff;font:700 12px 'IBM Plex Mono',monospace}"
+    },
+    {
+      "name": "Card", "kind": "card", "refersTo": "card",
+      "description": "White card on the cool ground with ambient shadow.",
+      "html": "<div class=\"ds-card\"><b>งานค้าง</b><p>SR-2026-118 · กล้อง CCTV โกดัง B</p></div>",
+      "css": ".ds-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(15,42,68,.05),0 4px 14px rgba(15,42,68,.06);font:400 14px 'IBM Plex Sans Thai',system-ui,sans-serif;color:#0E1C2B}.ds-card b{display:block;font-size:17px;font-weight:600;margin-bottom:8px}"
+    },
+    {
+      "name": "Sidebar Navigation", "kind": "nav", "refersTo": "nav-side",
+      "description": "Navy frame with the active item raised.",
+      "html": "<nav class=\"ds-side\"><a class=\"on\">ภาพรวม</a><a>เช็ครายวัน</a><a>คำขอ/ปัญหา</a></nav>",
+      "css": ".ds-side{width:240px;background:#0F2A44;padding:14px;display:flex;flex-direction:column;gap:2px;font:500 14px 'IBM Plex Sans Thai',system-ui,sans-serif}.ds-side a{height:44px;display:flex;align-items:center;padding:0 12px;border-radius:10px;color:#E3ECF6;opacity:.86;cursor:pointer}.ds-side a:hover{background:rgba(255,255,255,.05)}.ds-side a.on{background:#1A3D60;color:#fff;opacity:1;font-weight:600}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Plant Control Room",
+    "overview": "The app is the factory's IT control room: a dark navy frame around a calm, bright working area where every status reads at a glance. The frame carries the identity; the working area stays light, quiet and dense enough to hold a day's records. Colour is spent on state, never on decoration. The system is Thai-first, one family for both scripts, codes in monospace; light and dark are both first-class.",
+    "keyCharacteristics": [
+      "Navy frame, light working area, white cards on a cool grey ground.",
+      "Single action colour (signal blue); state colours carry meaning only.",
+      "Soft, generous rounding (10px controls, 16px cards) with ambient shadows.",
+      "Thai + Latin in one family; codes in monospace.",
+      "Three nav forms by width: top bar + drawer (phone), icon rail (tablet / unfolded Fold), full sidebar (desktop)."
+    ],
+    "rules": [
+      { "name": "The State-Only Colour Rule", "body": "Hue outside the navy frame and signal blue always means a state. Never use a status colour as decoration.", "section": "colors" },
+      { "name": "The One Action Rule", "body": "Signal blue marks what can be pressed or what is selected. A screen has one filled blue button per task.", "section": "colors" },
+      { "name": "The Code Is Mono Rule", "body": "Every machine identifier is set in IBM Plex Mono; Thai text never is.", "section": "typography" },
+      { "name": "The Flat Frame Rule", "body": "The navy frame never casts or receives shadow; depth exists only in the working area.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep the navy frame (#0F2A44) for navigation only and the working area light.",
+      "Do use one filled signal-blue button per task; other actions are secondary or ghost.",
+      "Do set every SR number, asset tag, serial and IP in IBM Plex Mono.",
+      "Do express status with the tinted pill pairs and priority with the solid P1-P4 badges.",
+      "Do give every new page the same header, card radius (16px) and table box as existing pages.",
+      "Do check both themes; in dark, swap card shadows for 1px borders."
+    ],
+    "donts": [
+      "Don't use status colours (green, amber, red, violet, orange) as decoration or category colour without meaning.",
+      "Don't add a delete action or a red destructive button for removing records; cancel by status.",
+      "Don't introduce new radii, shadows or greys outside the tokens above.",
+      "Don't set Thai text in the monospace face."
+    ]
+  }
+}

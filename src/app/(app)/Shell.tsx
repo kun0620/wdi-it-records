@@ -74,10 +74,12 @@ export default function Shell({ email, role, info, signOut, children }: Props) {
         ))}
       </nav>
       <div className="sp" />
-      <Link href="/daily" onClick={onNav} className="hq block">
-        <b>Daily Check วันนี้</b><br />
-        {info.daily ? `${info.daily.done}/7 ข้อ${info.daily.ng ? ` · พบ NG ${info.daily.ng} ข้อ` : " · ไม่พบ NG"}` : "ยังไม่ได้เช็ค"}
-      </Link>
+      {path !== "/" && (
+        <Link href="/daily" onClick={onNav} className="hq block">
+          <b>Daily Check วันนี้</b><br />
+          {info.daily ? `${info.daily.done}/7 ข้อ${info.daily.ng ? ` · พบ NG ${info.daily.ng} ข้อ` : " · ไม่พบ NG"}` : "ยังไม่ได้เช็ค"}
+        </Link>
+      )}
       <div className="me">
         <span className="avatar">{initials(email)}</span>
         <div className="min-w-0"><b className="truncate">{email}</b><span>{role === "editor" ? "IT Engineer · editor" : role ?? "-"}</span></div>
@@ -90,6 +92,7 @@ export default function Shell({ email, role, info, signOut, children }: Props) {
 
   return (
     <div className="min-h-dvh sm:pl-[76px] lg:pl-60 print:!pl-0">
+      <a href="#content" className="skip">ข้ามไปที่เนื้อหา</a>
       {/* desktop sidebar */}
       <aside className="side on-side fixed inset-y-0 left-0 z-30 hidden lg:flex print:!hidden">{sidebar()}</aside>
 
@@ -146,7 +149,7 @@ export default function Shell({ email, role, info, signOut, children }: Props) {
         <ThemeToggle />
       </header>
 
-      <div className="min-w-0">{children}</div>
+      <div id="content" tabIndex={-1} className="min-w-0 outline-none">{children}</div>
     </div>
   );
 }
