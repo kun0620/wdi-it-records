@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/supabase/server";
-import { todayISO } from "@/lib/dates";
+import { FileSpreadsheet } from "lucide-react";
+import { addDays, isoWeek, mondayOf, shortThaiDate, todayISO } from "@/lib/dates";
 import GenerateButton from "./GenerateButton";
 
 type FileItem = { path: string; name: string; size: number; updated: string | null };
@@ -30,7 +31,9 @@ function FileList({ files, empty }: { files: FileItem[]; empty: string }) {
 
 export default async function ExportsPage() {
   const { supabase, role } = await getSession();
-  const [y, m] = todayISO().split("-").map(Number);
+  const today = todayISO();
+  const [y, m] = today.split("-").map(Number);
+  const thisMon = mondayOf(today);
   const bucket = supabase.storage.from("it-exports");
 
   const list = async (prefix: string): Promise<FileItem[]> => {
@@ -57,6 +60,19 @@ export default async function ExportsPage() {
         ไฟล์ Excel หน้าตาเหมือนชีตเดิม: Summary · Service_Log · Daily_Check · Weekly_Check · Maintenance · Handover · Doc_List · Assets · Audit_Log
       </p>
       {role === "editor" && <GenerateButton />}
+
+      <section className={card}>
+        <h2 className="mb-1 font-semibold">รีพอท Daily Check รายสัปดาห์</h2>
+        <p className="mb-3 text-xs muted">Excel · จ.–อา. ของสัปดาห์ สำหรับรายงานวันศุกร์ — สร้างจากข้อมูลล่าสุดทุกครั้งที่กด</p>
+        <div className="flex flex-wrap gap-2">
+          {[thisMon, addDays(thisMon, -7)].map((wk, i) => (
+            <a key={wk} href={`/daily/report?week=${wk}`} className="btn btn-secondary">
+              <FileSpreadsheet className="size-4" />
+              {i === 0 ? "สัปดาห์นี้" : "สัปดาห์ก่อน"} · W{isoWeek(wk)} ({shortThaiDate(wk)} – {shortThaiDate(addDays(wk, 6))})
+            </a>
+          ))}
+        </div>
+      </section>
 
       <section className={card}>
         <h2 className="mb-1 font-semibold">รายเดือน</h2>

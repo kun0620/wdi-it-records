@@ -1,8 +1,8 @@
 /* WDI IT design system — ported from the Claude Design canvas "WDI IT Records" (StyleGuide artboard).
    Tokens live on :root; dark mode follows the OS unless the user picks a theme ([data-theme] on <html>). */
-:root{--bg:#F3F5F9;--card:#FFFFFF;--card2:#F6F8FB;--ink:#0E1C2B;--ink2:#3B4B5F;--ink3:#5A6A7E;--line:#E2E8F0;--line2:#EDF1F6;--brand:#1F4E78;--side:#0F2A44;--side2:#1A3D60;--sideInk:#E3ECF6;--sideMuted:#93ABC5;--accent:#2A78D6;--accentHover:#1F66BD;--accentSoft:#E7F0FC;--accentInk:#1A5CAE;--zebra:#F8FAFD;--hover:#EAF2FC;--field:#FFFFFF;--fieldLine:#C9D3DF;--shadow:0 1px 2px rgba(15,42,68,.05),0 4px 14px rgba(15,42,68,.06);--shadow2:0 12px 32px rgba(15,42,68,.16);--scrim:rgba(9,22,36,.48);
+:root{--bg:#F3F5F9;--card:#FFFFFF;--card2:#F6F8FB;--ink:#0E1C2B;--ink2:#3B4B5F;--ink3:#5A6A7E;--line:#E2E8F0;--line2:#EDF1F6;--brand:#1F4E78;--side:#0F2A44;--side2:#1A3D60;--sideInk:#E3ECF6;--sideMuted:#93ABC5;--accent:#2672CF;--accentHover:#1F66BD;--accentSoft:#E7F0FC;--accentInk:#1A5CAE;--zebra:#F8FAFD;--hover:#EAF2FC;--field:#FFFFFF;--fieldLine:#C9D3DF;--shadow:0 1px 2px rgba(15,42,68,.05),0 4px 14px rgba(15,42,68,.06);--shadow2:0 12px 32px rgba(15,42,68,.16);--scrim:rgba(9,22,36,.48);
 --ok-bg:#E3F4EA;--ok-fg:#13683A;--info-bg:#E5EFFC;--info-fg:#1B5BAA;--warn-bg:#FCF1D3;--warn-fg:#7E5100;--orange-bg:#FDE9DA;--orange-fg:#A0430A;--grey-bg:#EBEEF2;--grey-fg:#4C5A6B;--bad-bg:#FCE4E4;--bad-fg:#AE2121;--violet-bg:#EEE8FB;--violet-fg:#5A36B0;
---ok:#22A05B;--warn:#E3A512;--bad:#D63A3A;--empty:#E3E8EF;--barA:#2A78D6;--barB:#F2A65A;--okSolid:#1E8E50;--badSolid:#C93030}
+--ok:#22A05B;--warn:#E3A512;--bad:#D63A3A;--empty:#E3E8EF;--barA:#2A78D6;--barB:#F2A65A;--okSolid:#1B8449;--badSolid:#C93030}
 :root[data-theme="dark"]{--bg:#0A1522;--card:#111F2F;--card2:#162739;--ink:#E8EEF6;--ink2:#B6C4D4;--ink3:#8FA0B4;--line:#223549;--line2:#1A2C3F;--brand:#2D649A;--side:#07111C;--side2:#16304B;--sideInk:#E3ECF6;--sideMuted:#8199B3;--accent:#4A92EA;--accentHover:#66A5F0;--accentSoft:rgba(74,146,234,.16);--accentInk:#8EBFF6;--zebra:#132436;--hover:#1A3149;--field:#0D1927;--fieldLine:#2B435C;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 6px 18px rgba(0,0,0,.35);--shadow2:0 18px 44px rgba(0,0,0,.55);--scrim:rgba(0,0,0,.6);
 --ok-bg:rgba(46,190,110,.15);--ok-fg:#7ADFA6;--info-bg:rgba(74,146,234,.17);--info-fg:#97C4F7;--warn-bg:rgba(236,180,40,.15);--warn-fg:#F2CD69;--orange-bg:rgba(240,128,50,.17);--orange-fg:#F7AC74;--grey-bg:rgba(150,166,186,.15);--grey-fg:#B4C0CF;--bad-bg:rgba(238,80,80,.17);--bad-fg:#F69797;--violet-bg:rgba(150,112,240,.19);--violet-fg:#C3ACF9;
 --ok:#2FB46B;--warn:#E6B225;--bad:#E25454;--empty:#1F3247;--barA:#4A92EA;--barB:#F2B072;--okSolid:#23985A;--badSolid:#D24242}
@@ -312,6 +312,25 @@ textarea.input{height:auto;min-height:84px;padding:10px 12px;resize:vertical;lin
 .kind-inc{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:6px;border:1px solid var(--orange-fg);color:var(--orange-fg);font-size:11px;font-weight:700}
 .chk{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:14px}
 .chk.ng{box-shadow:0 0 0 2px var(--bad),var(--shadow)}
+/* Daily check: one compact row per system, OK/NG/N/A on the right within thumb reach */
+.chk.line{padding:10px 10px 10px 14px;border-radius:14px}
+.chk-h{display:flex;align-items:center;gap:10px}
+.chk-h .nm{flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.3;color:var(--ink)}
+.chk-h .nm .n{color:var(--ink3);font-weight:600;margin-right:5px}
+.chk-h .nm .hint{display:block;font-size:12px;font-weight:500;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.okng button:disabled{cursor:default}
+.okng button:disabled:not([aria-pressed="true"]){opacity:.45}
+.chk-h .okng{flex:none;width:174px;gap:6px}
+@media (min-width:1024px){.chk-h .okng{width:216px}}
+.chk-more{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.daily-foot{flex-direction:column;gap:8px}
+.daily-foot .acts{display:flex;gap:8px}
+.daily-foot .acts>.btn{flex:1 1 0;min-width:0;height:48px}
+.daily-foot .saved{display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 8px 8px 12px;border-radius:12px;background:var(--pb);color:var(--pf)}
+.daily-foot .saved b{display:block;font-size:14px;font-weight:700;line-height:1.3}
+.daily-foot .saved span{display:block;font-size:12.5px;font-weight:500;line-height:1.35}
+.daily-foot .saved .btn{height:44px}
+.daily-foot .fill{color:var(--ok-fg);border:1.5px dashed var(--ok)}
 .prog{height:8px;border-radius:999px;background:var(--line2);overflow:hidden}
 .prog i{display:block;height:100%;border-radius:999px;background:var(--accent)}
 .htile{display:flex;flex-direction:column;gap:4px;padding:10px;border-radius:12px;background:var(--card2);border:1px solid var(--line2);align-items:flex-start}
@@ -341,6 +360,7 @@ textarea.input{height:auto;min-height:84px;padding:10px 12px;resize:vertical;lin
 :root[data-theme="dark"] .acard{border:1px solid var(--line)}
 :root[data-theme="dark"] .scard{border:1px solid var(--line)}
 :root[data-theme="dark"] .chk{border:1px solid var(--line)}
+:root[data-theme="dark"] .okng button.ok,:root[data-theme="dark"] .btn-success{color:#06121F}
 :root[data-theme="dark"] .login-bg{background:radial-gradient(120% 80% at 10% 0%,#1D4F80 0%,#143A5E 35%,#0A1C2F 75%,#050E18 100%)}
 }
 @media (prefers-color-scheme: dark){@layer components{
@@ -366,5 +386,6 @@ textarea.input{height:auto;min-height:84px;padding:10px 12px;resize:vertical;lin
 :root:not([data-theme="light"]) .acard{border:1px solid var(--line)}
 :root:not([data-theme="light"]) .scard{border:1px solid var(--line)}
 :root:not([data-theme="light"]) .chk{border:1px solid var(--line)}
+:root:not([data-theme="light"]) .okng button.ok,:root:not([data-theme="light"]) .btn-success{color:#06121F}
 :root:not([data-theme="light"]) .login-bg{background:radial-gradient(120% 80% at 10% 0%,#1D4F80 0%,#143A5E 35%,#0A1C2F 75%,#050E18 100%)}
 }}

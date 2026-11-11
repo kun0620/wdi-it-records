@@ -29,15 +29,9 @@ const MAINT_TH: Record<string, string> = { OK: "ผ่าน", "DUE SOON": "ใ�
 const STATUS_TONE: Record<string, string> = { "In Use": "t-ok", "In Stock": "t-info", Repair: "t-warn", Waiting: "t-orange", Retired: "t-grey", Lost: "t-bad", Planned: "t-violet" };
 const TAG = { warn: ["t-warn", "ต้องดู"], bad: ["t-bad", "เร่งด่วน"] } as const;
 
-// The 7 plant systems of the daily check, short names for the status strip.
-const SYSTEM: Record<CheckKey, { short: string; icon: LucideIcon }> = {
-  firewall: { short: "Firewall", icon: ShieldCheck },
-  wan: { short: "WAN", icon: Globe },
-  vpn: { short: "VPN", icon: Network },
-  core_switch: { short: "Core SW", icon: Server },
-  wifi: { short: "Wi-Fi", icon: Wifi },
-  cctv: { short: "CCTV", icon: Cctv },
-  ups: { short: "UPS", icon: BatteryCharging },
+// Icons for the 7 plant systems of the daily check (names come from CHECKS, shared with the Daily page).
+const SYSTEM_ICON: Record<CheckKey, LucideIcon> = {
+  firewall: ShieldCheck, wan: Globe, vpn: Network, core_switch: Server, wifi: Wifi, cctv: Cctv, ups: BatteryCharging,
 };
 
 // A KPI stays quiet when its value is normal; only an off-target value gets a tag.
@@ -192,7 +186,7 @@ export default async function Dashboard() {
   // What needs the officer today, most urgent first.
   const todo: Todo[] = [];
   if (ngs.length) todo.push({ key: "ng", tone: "bad", icon: ShieldAlert, href: "/daily",
-    title: `พบ NG: ${ngs.map((c) => SYSTEM[c.k].short).join(", ")}`, meta: "จากเช็ครายวันวันนี้ · เปิดงาน Incident ได้ในหน้าเช็ครายวัน" });
+    title: `พบ NG: ${ngs.map((c) => c.name).join(", ")}`, meta: "จากเช็ครายวันวันนี้ · เปิดงาน Incident ได้ในหน้าเช็ครายวัน" });
   if (dow !== 0 && !daily) todo.push({ key: "daily", tone: "warn", icon: ClipboardCheck, href: "/daily", title: "ยังไม่ได้ทำเช็ครายวัน", meta: "7 ระบบ · Firewall ถึง UPS" });
   else if (daily && done < 7) todo.push({ key: "daily", tone: "warn", icon: ClipboardCheck, href: "/daily", title: `เช็ครายวันยังไม่ครบ ${done}/7`, meta: "บันทึกให้ครบทุกระบบ" });
   for (const r of d.open.filter((r) => r.priority === "P1" || r.priority === "P2")) {
@@ -233,12 +227,12 @@ export default async function Dashboard() {
         <ul className="sys" aria-label="สถานะ 7 ระบบ">
           {CHECKS.map((c) => {
             const r = daily?.[c.k] ?? null;
-            const Icon = SYSTEM[c.k].icon;
+            const Icon = SYSTEM_ICON[c.k];
             const state = r === "OK" ? "ok" : r === "NG" ? "ng" : r === "N/A" ? "na" : "none";
             return (
               <li key={c.k} className={`sy ${state}`} title={c.th}>
                 <Icon className="size-[18px]" strokeWidth={2} aria-hidden />
-                <span className="sn">{SYSTEM[c.k].short}</span>
+                <span className="sn">{c.name}</span>
                 <span className="sv">{r ?? "ยังไม่เช็ค"}</span>
               </li>
             );

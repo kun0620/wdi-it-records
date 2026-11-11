@@ -5,7 +5,7 @@ colors:
   control-navy: "#0F2A44"
   control-navy-raised: "#1A3D60"
   brand-steel-blue: "#1F4E78"
-  signal-blue: "#2A78D6"
+  signal-blue: "#2672CF"
   signal-blue-hover: "#1F66BD"
   signal-blue-ink: "#1A5CAE"
   signal-blue-soft: "#E7F0FC"
@@ -21,7 +21,7 @@ colors:
   side-ink: "#E3ECF6"
   side-muted: "#93ABC5"
   ok: "#22A05B"
-  ok-solid: "#1E8E50"
+  ok-solid: "#1B8449"
   warn: "#E3A512"
   bad: "#D63A3A"
   bad-solid: "#C93030"
@@ -177,7 +177,7 @@ Recorded from the shipped code on 2026-11-07, before a refinement pass. Known we
 A cool navy-and-steel palette with one bright blue for action and a fixed set of soft tinted pairs for status.
 
 ### Primary
-- **Signal Blue** (#2A78D6): primary buttons, focused inputs, active rail item, current bar in charts, selected filter outline. Hover deepens to #1F66BD; text-on-light uses the ink variant #1A5CAE; soft tint #E7F0FC behind icon chips and focus rings.
+- **Signal Blue** (#2672CF, darkened from #2A78D6 so white button text passes 4.5:1; charts keep #2A78D6): primary buttons, focused inputs, active rail item, selected filter outline. Hover deepens to #1F66BD; text-on-light uses the ink variant #1A5CAE; soft tint #E7F0FC behind icon chips and focus rings.
 
 ### Secondary
 - **Control Navy** (#0F2A44): sidebar, icon rail, phone top bar, theme colour. Raised navy (#1A3D60) marks the active sidebar item. Brand steel blue (#1F4E78) fills selected filter chips and the dashboard hero gradient.
@@ -189,7 +189,7 @@ A cool navy-and-steel palette with one bright blue for action and a fixed set of
 - **Hairline** (#E2E8F0), **Soft Hairline** (#EDF1F6), **Field Line** (#C9D3DF): borders, row dividers, input strokes.
 
 ### Status
-Each status is a tinted pair (background + foreground) used by pills and icon chips: ok (#E3F4EA / #13683A), info (#E5EFFC / #1B5BAA), warn (#FCF1D3 / #7E5100), orange (#FDE9DA / #A0430A), grey (#EBEEF2 / #4C5A6B), bad (#FCE4E4 / #AE2121), violet (#EEE8FB / #5A36B0). Solid ok (#1E8E50) and bad (#C93030) fill the OK/NG buttons. Priorities have their own solid badges: P1 #C62828, P2 #B95100, P3 #2563B5, P4 #5A6878.
+Each status is a tinted pair (background + foreground) used by pills and icon chips: ok (#E3F4EA / #13683A), info (#E5EFFC / #1B5BAA), warn (#FCF1D3 / #7E5100), orange (#FDE9DA / #A0430A), grey (#EBEEF2 / #4C5A6B), bad (#FCE4E4 / #AE2121), violet (#EEE8FB / #5A36B0). Solid ok (#1B8449; dark theme uses dark text on it) and bad (#C93030) fill the OK/NG buttons. Priorities have their own solid badges: P1 #C62828, P2 #B95100, P3 #2563B5, P4 #5A6878.
 
 ### Dark theme
 Ground #0A1522, cards #111F2F with a 1px border instead of shadow, ink #E8EEF6, accent lifts to #4A92EA with dark text on filled accent controls. Status pairs become translucent tints with light foregrounds.
